@@ -1,0 +1,53 @@
+name: WebIsland
+options:
+  bundleIdPrefix: com.borasarang
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16.0"
+targets:
+  WebIsland:
+    type: application
+    platform: macOS
+    bundleId: com.borasarang.WebIsland
+    deploymentTarget: "14.0"
+    info:
+      path: Info.plist
+    sources:
+      - path: Sources
+    resources:
+      - path: Assets/WebIsland.xcassets
+      - path: Resources
+    settings:
+      base:
+        PRODUCT_NAME: WebIsland
+        PRODUCT_BUNDLE_IDENTIFIER: com.borasarang.WebIsland
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        SWIFT_VERSION: "5.9"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+  WebIslandTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "14.0"
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: "YES"
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+    sources:
+      - path: Tests
+    dependencies:
+      - target: WebIsland
+schemes:
+  WebIsland:
+    build:
+      targets:
+        WebIsland: all
+        WebIslandTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - WebIslandTests
