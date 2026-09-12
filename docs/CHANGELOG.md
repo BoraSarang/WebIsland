@@ -2,6 +2,14 @@
 
 ## [Unreleased] — macos
 
+- [macos] 인증서·탭·다운로드·분리모드·아이콘 (WI-mui, 검증 대기):
+  사설IP 자동 신뢰 + 예외 기억 (`CertTrustService`, `certrust.*` 키),
+  `NSAllowsLocalNetworking`, 탭 전환 `.id()` 교체 + 파비콘탭 펼치기
+  (부모 토글 억제), 다운로드 action 정책 + blob 판별 로그,
+  분리모드 실시간 전환 (NotificationCenter) + 패널 표시 보장,
+  공식 아이콘 세트 적용 (AppIcon full set, Menubar 18pt template,
+  `CFBundleIconName`, 원본 `Assets/Icons` 보관).
+  unit 21건 통과, lint error 0. 실행 후 창 미표시 잔여 이슈 있음 (다음 세션 우선).
 - [macos] 실행 안정화: `LSMinimumSystemVersion` 숫자 기입 크래시
   (`<real>` → `"14.0"` 문자열, project.yml 단일 진실) 수정.
   호버 렌더 재진입 크래시 수정 (상태 변경을 다음 런루프로).

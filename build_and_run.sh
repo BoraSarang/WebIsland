@@ -12,13 +12,23 @@ usage() {
 }
 
 cmd="${1:-build}"
+# xcodegen은 resources를 누락하므로(2.45.4 확인) 생성 직후 패치 + 가드.
+ensure_resources() {
+  python3 "$ROOT/scripts/patch-resources.py"
+  if ! grep -q "PBXResourcesBuildPhase" "$ROOT/WebIsland.xcodeproj/project.pbxproj"; then
+    echo "[build] ERROR: 리소스 등록 없음. scripts/patch-resources.py 확인" >&2
+    exit 1
+  fi
+}
 case "$cmd" in
   build)
     "$ROOT/scripts/env-expiry-check.sh"
+    ensure_resources
     xcodebuild -project "$ROOT/WebIsland.xcodeproj" -scheme WebIsland -configuration Debug build
     ;;
   test)
     "$ROOT/scripts/env-expiry-check.sh"
+    ensure_resources
     if [ "$SUITE" = "unit" ]; then
       xcodebuild test -project "$ROOT/WebIsland.xcodeproj" -scheme WebIsland -destination 'platform=macOS' 2>&1 | tail -n 20
     else

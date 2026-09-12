@@ -49,7 +49,10 @@ struct NotchRootView: View {
                     tabs: tabManager.tabs,
                     activeID: tabManager.activeTabID,
                     gapWidth: viewModel.centerGap,
-                    onSelect: { tabManager.selectTab($0) },
+                    onSelect: {
+                        tabManager.selectTab($0)
+                        viewModel.state = .expanded
+                    },
                     onClose: { tabManager.closeTab($0) },
                     onTogglePin: { tabManager.togglePin($0) },
                     onAdd: { tabManager.addTab() }
@@ -92,6 +95,7 @@ struct NotchRootView: View {
                 }
             )
             WebContainerView(webView: webView, url: tab.url, isNewTabPage: tab.isNewTabPage)
+                .id(tab.id)
                 .frame(width: 390)
         }
         .frame(width: 400, height: 480)
@@ -146,7 +150,10 @@ struct TabStripView: View {
     @ViewBuilder
     private func tabButton(_ tab: WebTab, index: Int) -> some View {
         FaviconView(tab: tab, isActive: activeID == tab.id)
-            .onTapGesture { onSelect(tab) }
+            // 부모 pill 토글보다 우선 (펼친 상태에서 탭 눌러도 닫히지 않음).
+            .highPriorityGesture(
+                TapGesture().onEnded { onSelect(tab) }
+            )
             .contextMenu {
                 Button(tab.isPinned
                     ? NSLocalizedString("tab.unpin", comment: "")
@@ -317,6 +324,7 @@ struct DetachedBrowserView: View {
                     }
                 )
                 WebContainerView(webView: webView, url: tab.url, isNewTabPage: tab.isNewTabPage)
+                    .id(tab.id)
             }
         }
         .frame(width: 400, height: 500)

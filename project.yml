@@ -25,7 +25,10 @@ targets:
         LSUIElement: true
         LSMinimumSystemVersion: "14.0"
         CFBundleLocalizations: [en, ko]
+        CFBundleIconName: AppIcon
         NSHumanReadableCopyright: © Web Island
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
     sources:
       - path: Sources
     resources:

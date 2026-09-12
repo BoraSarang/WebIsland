@@ -23,4 +23,8 @@
 "tab.unpin" = "고정 해제";
 "omnibox.placeholder" = "주소 입력";
 "omnibox.newTabHint" = "주소를 입력하세요";
+"certrust.title" = "안전하지 않은 인증서";
+"certrust.message" = "%@의 인증서를 신뢰할까요? (예외 목록에 기억됩니다)";
+"certrust.continue" = "계속";
+"certrust.cancel" = "취소";
 "settings.language.note" = "영문 이름은 Web Island, 별칭은 아이슬렌드 웹";

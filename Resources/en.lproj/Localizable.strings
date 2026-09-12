@@ -23,4 +23,8 @@
 "tab.unpin" = "Unpin Tab";
 "omnibox.placeholder" = "Enter address";
 "omnibox.newTabHint" = "Enter an address";
+"certrust.title" = "Untrusted Certificate";
+"certrust.message" = "Trust the certificate for %@? (Remembered in exceptions)";
+"certrust.continue" = "Continue";
+"certrust.cancel" = "Cancel";
 "settings.language.note" = "Also known as 아이슬렌드 웹";

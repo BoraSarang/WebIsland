@@ -42,6 +42,9 @@ struct SettingsView: View {
                 }
                 .pickerStyle(.radioGroup)
                 .labelsHidden()
+                .onChange(of: windowMode) { _, _ in
+                    NotificationCenter.default.post(name: .wiWindowModeChanged, object: nil)
+                }
             } header: {
                 Text(NSLocalizedString("settings.windowMode", comment: ""))
             } footer: {

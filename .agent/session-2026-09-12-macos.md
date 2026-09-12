@@ -1,13 +1,15 @@
-# session-2026-09-12-macos (8줄 요약) — 최종
+# session-2026-09-12-macos (8줄 요약) — 심야 마감
 
-1. 무엇을: ZIP 분석→문서→빌드토대→노치코어→설정메뉴→실행버그 수정→검증게이트.
+1. 무엇을: WI-mui 구현 (인증서·탭전환·다운로드·분리모드·공식아이콘).
 2. 플랫폼: macos 단일 (`com.borasarang.WebIsland`, 14.0, xcodebuild).
-3. 빌드+PERF+CACHE: TEST SUCCEEDED(unit 18건), lint error 0.
-   Cold Start 0.89/0.50/0.42s ✓, RSS 79MB idle ✓, 캐시 DebugPanel 표시.
-4. 남은TODO: 없음 (T-001~T-008 완료). 수동 TC-MAN-001/002는 사용자 테스트 중.
-5. 전달로그: LaunchAtLogin stall→SMAppService 대체. @main 미연결→main.swift.
-   NSHostingView 자동맞춤→sizingOptions 해제. S2 301→faviconV2.
-6. 문서갱신: PLAN/TODO/DESIGN/CHANGELOG/e2e PLAN/AGENTS.local/session 전부 최신.
-7. 큐상태: 전부 닫힘. 커밋 6건 (chore→build-base→notch-core→settings-menu→
-   notch-visible→tabs-polish). 원격 없음 → 푸시/PR 보류.
-8. E2E: smoke 자동 통과. full 수동분은 사용자 테스트로 대체.
+3. 빌드+PERF+CACHE: TEST SUCCEEDED(unit 21건), lint error 0.
+   실행 후 창 미표시 잔여 (프레임워크 매핑은 되나 윈도우 0개).
+4. 남은TODO: T-009 검증 대기. 다음 세션 1순위 = 창 미표시 확정.
+5. 전달로그: 소유자명 필터 교훈 ("Web Island" 공백 포함).
+   xcodegen 리소스 누락 → `scripts/patch-resources.py` + 빌드 가드.
+   pbxproj 직접 패치 시 앵커 중복 함정 (insert≠anchor).
+6. 문서갱신: CHANGELOG·TODO·PLAN·e2e PLAN·AGENTS.local 최신.
+   공식 아이콘 원본 `Assets/Icons` 보관 + README.
+7. 큐상태: WI-mui 진행중(claim). 나머지 닫힘.
+   분기 `feat/macos-trust-tabs-download` 커밋 예정. 원격 없음.
+8. E2E: smoke 자동 통과. LAN 수동 TC는 다음 세션.

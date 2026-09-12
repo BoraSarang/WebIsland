@@ -1,3 +1,4 @@
+import Cocoa
 import Combine
 import SwiftUI
 import WebKit
@@ -68,7 +69,90 @@ struct WebContainerView: NSViewRepresentable {
             }
         }
 
+        // MARK: - 사설 인증서 (확인 후 기억 + 사설IP 자동 신뢰)
+
+        func webView(
+            _ webView: WKWebView,
+            didReceive challenge: URLAuthenticationChallenge,
+            completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+        ) {
+            guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+                  let trust = challenge.protectionSpace.serverTrust
+            else {
+                completionHandler(.performDefaultHandling, nil)
+                return
+            }
+            let host = challenge.protectionSpace.host
+            if CertTrustService.trustedHosts().contains(host) {
+                DebugLogger.info("인증서 예외 적용(기억됨): \(host)")
+                completionHandler(.useCredential, URLCredential(trust: trust))
+                return
+            }
+            if CertTrustService.isPrivateIP(host) {
+                CertTrustService.remember(host: host)
+                DebugLogger.feature("CertTrust", "사설IP 자동 신뢰: \(host)")
+                completionHandler(.useCredential, URLCredential(trust: trust))
+                return
+            }
+            askToTrust(host: host, trust: trust, completionHandler: completionHandler)
+        }
+
+        private func askToTrust(
+            host: String,
+            trust: SecTrust,
+            completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+        ) {
+            let alert = NSAlert()
+            alert.messageText = NSLocalizedString("certrust.title", comment: "")
+            alert.informativeText = String(
+                format: NSLocalizedString("certrust.message", comment: ""),
+                host
+            )
+            alert.addButton(withTitle: NSLocalizedString("certrust.continue", comment: ""))
+            alert.addButton(withTitle: NSLocalizedString("certrust.cancel", comment: ""))
+            if alert.runModal() == .alertFirstButtonReturn {
+                CertTrustService.remember(host: host)
+                DebugLogger.feature("CertTrust", "사용자 확인 신뢰: \(host)")
+                completionHandler(.useCredential, URLCredential(trust: trust))
+            } else {
+                DebugLogger.info("인증서 신뢰 거부됨: \(host)")
+                completionHandler(.cancelAuthenticationChallenge, nil)
+            }
+        }
+
         // MARK: - 다운로드 (표시 불가 MIME → ~/Downloads 저장)
+
+        func webView(
+            _ webView: WKWebView,
+            decidePolicyFor navigationAction: WKNavigationAction,
+            decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+        ) {
+            let urlString = navigationAction.request.url?.absoluteString ?? ""
+            if navigationAction.request.url?.scheme == "blob" {
+                // blob: 다운로드는 WebKit 단독 불가 → JS 브리지 필요. 우선 로그로 판별.
+                DebugLogger.info("blob 다운로드 감지 (브리지 필요): \(urlString.prefix(80))")
+                decisionHandler(.allow)
+                return
+            }
+            if navigationAction.shouldPerformDownload {
+                DebugLogger.feature("Download", "action 경로: \(urlString.prefix(120))")
+                decisionHandler(.download)
+            } else {
+                decisionHandler(.allow)
+            }
+        }
+
+        func webView(
+            _ webView: WKWebView,
+            navigationAction: WKNavigationAction,
+            didBecome download: WKDownload
+        ) {
+            DebugLogger.feature(
+                "Download",
+                "시작(action): \(navigationAction.request.url?.lastPathComponent ?? "파일")"
+            )
+            download.delegate = self
+        }
 
         func webView(
             _ webView: WKWebView,

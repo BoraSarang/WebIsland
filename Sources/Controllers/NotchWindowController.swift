@@ -27,7 +27,21 @@ final class NotchWindowController {
                 self?.layout(for: state, animated: true)
             }
             .store(in: &cancellables)
+        // 설정 화면에서 모드 변경 시 실시간 전환.
+        NotificationCenter.default.addObserver(
+            forName: .wiWindowModeChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            self.windowMode = self.storedWindowMode()
+            self.switchMode(to: self.windowMode)
+        }
         setupMouseTracking()
+    }
+
+    private func storedWindowMode() -> WindowMode {
+        WindowMode(rawValue: UserDefaults.standard.string(forKey: "windowMode") ?? "") ?? .attached
     }
 
     deinit {
@@ -214,6 +228,12 @@ final class NotchWindowController {
     /// 메뉴바 클릭·단축키: 패널 열고 닫기.
     func toggle() {
         notchWindow.orderFrontRegardless()
+        if windowMode == .detached {
+            if detachedWindow == nil {
+                setupDetachedWindow()
+            }
+            detachedWindow?.orderFrontRegardless()
+        }
         if viewModel.state == .expanded {
             viewModel.state = .hovered
         } else {
@@ -222,7 +242,12 @@ final class NotchWindowController {
         }
     }
 
-    func show() { notchWindow.orderFrontRegardless() }
+    func show() {
+        notchWindow.orderFrontRegardless()
+        if windowMode == .detached {
+            detachedWindow?.orderFrontRegardless()
+        }
+    }
 
     func switchMode(to mode: WindowMode) {
         DebugLogger.feature("WindowMode", "모드 전환: \(mode.rawValue)")

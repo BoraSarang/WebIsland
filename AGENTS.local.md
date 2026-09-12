@@ -17,6 +17,9 @@
 2. **번들 ID 확정**: `com.borasarang.WebIsland` (ZIP의 `com.webisland.app` 폐기).
 3. **빌드 규격**: `xcodebuild` + Xcode 프로젝트를 정식 산출물로 함.
    SwiftPM(`Package.swift`)은 의존성 병행용으로 유지. `swift build/test` 금지.
+   **xcodegen 주의**: 2.45.4가 `resources`를 누락함.
+   `xcodegen generate` 후 반드시 `scripts/patch-resources.py` 실행
+   (`build_and_run.sh`가 자동 수행 + 가드).
 4. **작업 추적 이중화**: `bd`를 정식 진실로 사용. `docs/TODO.md`는
    T-번호 ↔ bd ID 매핑용 패시브 미러 (bd export와 동일 취급).
    에이전트 온보딩은 `bd prime` 직접 실행 (루트 `AGENTS.md`·`CLAUDE.md`는
