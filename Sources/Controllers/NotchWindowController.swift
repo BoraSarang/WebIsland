@@ -189,7 +189,10 @@ final class NotchWindowController {
             collapseWorkItem?.cancel()
             collapseWorkItem = nil
             if viewModel.state == .idle {
-                viewModel.state = .hovered
+                // 렌더 패스 재진입 방지: 상태 변경은 다음 런루프에.
+                DispatchQueue.main.async { [weak self] in
+                    self?.viewModel.state = .hovered
+                }
             }
         } else if let panelFrame = notchWindow?.frame, !panelFrame.contains(mouse) {
             scheduleCollapse()

@@ -24,7 +24,11 @@ struct NotchRootView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: tabManager.activeTabID)
         .onHover { hovering in
             guard state != .expanded else { return }
-            viewModel.state = hovering ? .hovered : .idle
+            // 렌더 패스 중 상태 변경 시 AttributeGraph 재진입 크래시.
+            // 다음 런루프로 미뤄 안전하게 반영.
+            DispatchQueue.main.async {
+                viewModel.state = hovering ? .hovered : .idle
+            }
         }
     }
 

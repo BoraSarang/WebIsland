@@ -16,11 +16,24 @@ targets:
     deploymentTarget: "14.0"
     info:
       path: Info.plist
+      properties:
+        CFBundleName: Web Island
+        CFBundleDisplayName: Web Island
+        CFBundleIdentifier: com.borasarang.WebIsland
+        CFBundleShortVersionString: 0.1.0
+        CFBundleVersion: 0.1.0
+        LSUIElement: true
+        LSMinimumSystemVersion: "14.0"
+        CFBundleLocalizations: [en, ko]
+        NSHumanReadableCopyright: © Web Island
     sources:
       - path: Sources
     resources:
       - path: Assets/WebIsland.xcassets
-      - path: Resources
+      - path: Resources/en.lproj/Localizable.strings
+      - path: Resources/ko.lproj/Localizable.strings
+      - path: Resources/en.lproj/InfoPlist.strings
+      - path: Resources/ko.lproj/InfoPlist.strings
     dependencies:
       - package: KeyboardShortcuts
     settings:

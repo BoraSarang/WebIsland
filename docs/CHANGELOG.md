@@ -2,6 +2,11 @@
 
 ## [Unreleased] — macos
 
+- [macos] 실행 안정화: `LSMinimumSystemVersion` 숫자 기입 크래시
+  (`<real>` → `"14.0"` 문자열, project.yml 단일 진실) 수정.
+  호버 렌더 재진입 크래시 수정 (상태 변경을 다음 런루프로).
+  xcodegen 리소스 누락 → pbxproj 수동 등록 (lproj+xcassets+knownRegions ko).
+  unit 18건 통과, lint error 0. idle pill 정상 표시 확인.
 - [macos] 스트링 통일·설정 Form: 하드코딩 한글 제거
   (`menu.newTab/tab.close/tab.pin/tab.unpin/omnibox.*` 키 추가, 한·영).
   상태바 메뉴와 `…` 메뉴 동일 키 사용. 설정 화면 grouped Form +
