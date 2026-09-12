@@ -10,9 +10,10 @@
 | T-004 | WI-c4q | 빌드 토대 (Xcodeproj+번들ID+xcassets+build_and_run.sh) | 완료 |
 | T-005 | WI-6h0 | 노치 코어 (감지+호버+Attached+WKWebView풀+TabManager+Favicon) | 완료 |
 | T-006 | WI-jcp | 설정/메뉴바 (Dock토글+자동실행+단축키+우클릭+폴백) | 완료 |
-| T-007 | WI-n67 | 검증 게이트 (DebugPanel+PERF 실측+E2E) | 대기 |
+| T-007 | WI-n67 | 검증 게이트 (DebugPanel+PERF 실측+E2E) | 완료 (full E2E 수동분은 사용자 테스트로 대체) |
+| T-008 | WI-ovj | 웹뷰 390 인셋·다운로드·JS 확인 | 완료 |
 
 ## 다음 행동
 
-1. `bd update WI-n67 --claim` 후 검증 게이트 (사용자 사용 중이면 headless 사전 확인)
-2. 커밋/PR은 사용자 승인 후 (`feat/macos-settings-menu` 분리)
+1. 남은 커밋 없음 (6건 완료). 원격 설정 시 푸시·PR.
+2. 사용자 수동 테스트: TC-MAN-001/002 (`docs/e2e/PLAN.md`).

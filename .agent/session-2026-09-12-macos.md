@@ -1,14 +1,13 @@
-# session-2026-09-12-macos (8줄 요약) — 설정/메뉴바 완료 갱신
+# session-2026-09-12-macos (8줄 요약) — 최종
 
-1. 무엇을: WI-jcp 구현 (메뉴·Dock·핫키·폴백·설정창·자동실행).
+1. 무엇을: ZIP 분석→문서→빌드토대→노치코어→설정메뉴→실행버그 수정→검증게이트.
 2. 플랫폼: macos 단일 (`com.borasarang.WebIsland`, 14.0, xcodebuild).
-3. 빌드+PERF+CACHE: `TEST SUCCEEDED`(unit 10건 0실패), swiftlint error 0.
-   RSS/ColdStart 실측은 WI-n67로 이월.
-4. 남은TODO: WI-n67(검증게이트) 1건.
-5. 전달로그: LaunchAtLogin 클론 stall → SMAppService 직접 사용으로 대체
-   (git ls-remote 즉시·clone 무한대기 확인). KeyboardShortcuts는 캐시 적중.
-   테스트 실패 1건이 URL 검증 허점 발견 → 스킴·호스트 검사 강화 후 통과.
-6. 문서갱신: CHANGELOG 설정항목, TODO 미러, error_message_ko(PERM-0002),
-   Package.platforms 14.0.
-7. 큐상태: 닫힘 WI-jcp. 열림 WI-n67. 미커밋 (승인 후 feat/macos-settings-menu).
-8. E2E: 미수행 (승인 후 headless·병렬≤2로 별도).
+3. 빌드+PERF+CACHE: TEST SUCCEEDED(unit 18건), lint error 0.
+   Cold Start 0.89/0.50/0.42s ✓, RSS 79MB idle ✓, 캐시 DebugPanel 표시.
+4. 남은TODO: 없음 (T-001~T-008 완료). 수동 TC-MAN-001/002는 사용자 테스트 중.
+5. 전달로그: LaunchAtLogin stall→SMAppService 대체. @main 미연결→main.swift.
+   NSHostingView 자동맞춤→sizingOptions 해제. S2 301→faviconV2.
+6. 문서갱신: PLAN/TODO/DESIGN/CHANGELOG/e2e PLAN/AGENTS.local/session 전부 최신.
+7. 큐상태: 전부 닫힘. 커밋 6건 (chore→build-base→notch-core→settings-menu→
+   notch-visible→tabs-polish). 원격 없음 → 푸시/PR 보류.
+8. E2E: smoke 자동 통과. full 수동분은 사용자 테스트로 대체.
