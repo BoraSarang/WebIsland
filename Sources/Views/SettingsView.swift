@@ -1,3 +1,4 @@
+import KeyboardShortcuts
 import SwiftUI
 
 struct SettingsView: View {
@@ -9,8 +10,17 @@ struct SettingsView: View {
         Form {
             Section(NSLocalizedString("settings.general", comment: "")) {
                 Toggle(NSLocalizedString("settings.launchAtLogin", comment: ""), isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { _, enabled in
+                        LoginItemService.isEnabled = enabled
+                    }
                 Toggle(NSLocalizedString("settings.showInDock", comment: ""), isOn: $showInDock)
                     .help(NSLocalizedString("settings.showInDock.help", comment: ""))
+                    .onChange(of: showInDock) { _, _ in
+                        (NSApp.delegate as? AppDelegate)?.applyDockVisibility()
+                    }
+            }
+            Section(NSLocalizedString("settings.hotkey", comment: "")) {
+                KeyboardShortcuts.Recorder(for: .togglePanel)
             }
             Section(NSLocalizedString("settings.windowMode", comment: "")) {
                 Picker(

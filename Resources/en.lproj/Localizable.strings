@@ -15,4 +15,5 @@
 "settings.windowMode.attached.desc" = "Feels like the notch itself expands. Seamless and immersive.";
 "settings.windowMode.detached" = "Detached & Movable";
 "settings.windowMode.detached.desc" = "Drag the browser panel anywhere. Position is remembered.";
+"settings.hotkey" = "Keyboard Shortcut";
 "settings.language.note" = "Also known as 아이슬렌드 웹";

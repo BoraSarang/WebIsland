@@ -15,4 +15,5 @@
 "settings.windowMode.attached.desc" = "노치가 확장된 것처럼 일체감 있게 붙어있습니다. (추천)";
 "settings.windowMode.detached" = "떨어뜨려 이동";
 "settings.windowMode.detached.desc" = "브라우저를 드래그해서 원하는 위치에 둘 수 있습니다. 위치를 기억합니다.";
+"settings.hotkey" = "단축키";
 "settings.language.note" = "영문 이름은 Web Island, 별칭은 아이슬렌드 웹";
