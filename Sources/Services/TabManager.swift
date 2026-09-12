@@ -20,24 +20,21 @@ final class TabManager: ObservableObject {
         tabs.first { $0.id == activeTabID }
     }
 
-    init() {
+    init(isStoredInMemoryOnly: Bool = false) {
         DebugLogger.feature("TabManager", "초기화")
-        setupStore()
+        setupStore(isStoredInMemoryOnly: isStoredInMemoryOnly)
         loadTabs()
     }
 
     // MARK: - Store
 
-    private func setupStore() {
+    private func setupStore(isStoredInMemoryOnly: Bool) {
+        let config = ModelConfiguration(isStoredInMemoryOnly: isStoredInMemoryOnly)
         do {
-            let container = try ModelContainer(for: WebTab.self)
+            let container = try ModelContainer(for: WebTab.self, configurations: config)
             context = ModelContext(container)
         } catch {
-            DebugLogger.error(code: "E-MAC-DB-0001", "탭 저장소 열기 실패, 인메모리 폴백")
-            let config = ModelConfiguration(isStoredInMemoryOnly: true)
-            if let container = try? ModelContainer(for: WebTab.self, configurations: config) {
-                context = ModelContext(container)
-            }
+            DebugLogger.error(code: "E-MAC-DB-0001", "탭 저장소 열기 실패")
         }
     }
 
@@ -82,7 +79,20 @@ final class TabManager: ObservableObject {
 
     // MARK: - CRUD
 
-    func addTab(urlString: String = "https://duckduckgo.com") {
+    /// + 버튼: 빈 안내 페이지 탭 (URL 입력 유도).
+    func addTab() {
+        DebugLogger.feature("TabManager.addTab", "새 탭 안내 페이지")
+        let tab = WebTab(
+            url: URL(string: "about:blank")!,
+            order: (tabs.map(\.order).max() ?? -1) + 1
+        )
+        context?.insert(tab)
+        tabs.append(tab)
+        activeTabID = tab.id
+        save()
+    }
+
+    func addTab(urlString: String) {
         DebugLogger.feature("TabManager.addTab", urlString)
         guard let url = validatedURL(urlString) else {
             DebugLogger.error(code: "E-MAC-VALID-0001", "잘못된 주소: \(urlString)")
@@ -96,6 +106,10 @@ final class TabManager: ObservableObject {
     }
 
     func closeTab(_ tab: WebTab) {
+        if tab.isPinned {
+            DebugLogger.info("고정 탭은 닫기 불가, 고정 해제 후 닫기: \(tab.host)")
+            return
+        }
         DebugLogger.feature("TabManager.closeTab", tab.host)
         if let webView = pool.removeValue(forKey: tab.id) {
             webView.stopLoading()
@@ -111,6 +125,13 @@ final class TabManager: ObservableObject {
 
     func selectTab(_ tab: WebTab) {
         activeTabID = tab.id
+    }
+
+    func togglePin(_ tab: WebTab) {
+        DebugLogger.feature("TabManager.togglePin", "\(tab.host): \(!tab.isPinned)")
+        tab.isPinned.toggle()
+        objectWillChange.send()
+        save()
     }
 
     func moveTab(from source: IndexSet, to destination: Int) {
@@ -135,13 +156,22 @@ final class TabManager: ObservableObject {
 
     private func validatedURL(_ raw: String) -> URL? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let url = URL(string: trimmed), url.scheme != nil, url.host != nil {
+        if let url = URL(string: trimmed), Self.isLoadable(url) {
             return url
         }
-        if let url = URL(string: "https://\(trimmed)"), url.host != nil {
+        if let url = URL(string: "https://\(trimmed)"), Self.isLoadable(url) {
             return url
         }
         return nil
+    }
+
+    private static func isLoadable(_ url: URL) -> Bool {
+        guard let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https",
+              let host = url.host, !host.isEmpty
+        else { return false }
+        let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-")
+        return host.rangeOfCharacter(from: allowed.inverted) == nil
     }
 
     // MARK: - WebView Pool
@@ -150,7 +180,8 @@ final class TabManager: ObservableObject {
         if let existing = pool[tab.id] {
             touch(tab.id)
             DebugLogger.cache(hit: true, "웹뷰 풀: \(tab.host)")
-            if existing.url == nil {
+            // 새 탭 안내 페이지는 뷰(WebContainerView)가 로드 담당.
+            if existing.url == nil, !tab.isNewTabPage {
                 existing.load(URLRequest(url: tab.url))
             }
             return existing
@@ -159,11 +190,17 @@ final class TabManager: ObservableObject {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.applicationNameForUserAgent = "WebIsland/0.1"
+        if #available(macOS 11.0, *) {
+            config.defaultWebpagePreferences.allowsContentJavaScript = true
+        }
         let webView = WKWebView(frame: .zero, configuration: config)
-        webView.load(URLRequest(url: tab.url))
+        if !tab.isNewTabPage {
+            webView.load(URLRequest(url: tab.url))
+        }
         pool[tab.id] = webView
         touch(tab.id)
         evictIfNeeded()
+        LogStore.shared.poolSize = pool.count
         DebugLogger.perf("웹뷰 풀 크기: \(pool.count)/\(maxPoolSize)")
         return webView
     }

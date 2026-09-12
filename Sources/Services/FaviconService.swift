@@ -41,16 +41,18 @@ actor FaviconService {
             store(icon, for: host)
             return icon
         }
-        // 3) Google S2
-        if let s2 = URL(string: "https://www.google.com/s2/favicons?domain=\(host)&sz=64"),
-           let icon = await download(from: s2)
-        {
+        // 3) Google faviconV2 직접 호출 (구 S2는 리다이렉트 폴백이라 품질 불안정)
+        let v2 = "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON"
+            + "&fallback_opts=TYPE,SIZE,URL&url=https://\(host)&size=64"
+        if let icon = await download(from: URL(string: v2)) {
             store(icon, for: host)
             return icon
         }
-        // 4) 첫글자 아바타 폴백
+        // 4) 첫글자 아바타 폴백 (이미지로 반환해 캐시까지 저장)
         DebugLogger.error(code: "E-MAC-NET-0001", "파비콘 없음, 아바타 폴백: \(host)")
-        return nil
+        let fallback = AvatarGenerator.generate(for: host)
+        store(fallback, for: host)
+        return fallback
     }
 
     /// JS 1단계: 페이지의 link[rel*=icon] href를 직접 다운로드.

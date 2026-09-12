@@ -4,6 +4,10 @@ options:
   deploymentTarget:
     macOS: "14.0"
   xcodeVersion: "16.0"
+packages:
+  KeyboardShortcuts:
+    url: https://github.com/sindresorhus/KeyboardShortcuts
+    from: 2.0.0
 targets:
   WebIsland:
     type: application
@@ -17,6 +21,8 @@ targets:
     resources:
       - path: Assets/WebIsland.xcassets
       - path: Resources
+    dependencies:
+      - package: KeyboardShortcuts
     settings:
       base:
         PRODUCT_NAME: WebIsland

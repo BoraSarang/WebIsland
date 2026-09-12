@@ -7,19 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04AD2073B9D26D5A5E98E15B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC0E376D8A98A23018F1395 /* main.swift */; };
 		09F88320328B94626A4CBCCB /* NotchWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9A71ECA91C23BBD9DD1A33 /* NotchWindowController.swift */; };
 		0EEAE6A4B639D6E10FB733D0 /* NotchDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0D460E308B352A6D8D7B99 /* NotchDetector.swift */; };
+		1D00DAF748D438AE1BE17A7E /* WebCapabilitiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C32A186833CA11BFCC0464 /* WebCapabilitiesTests.swift */; };
+		28C2B0755B4BDAF84401ECF7 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = DEC22D5A7429429E2ED10828 /* KeyboardShortcuts */; };
 		3818771F8B1681165C7EF9C3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEDF3CB24DDEBB570D7A9BD /* AppDelegate.swift */; };
 		418F158A7D910DE23C58BF9E /* DetachedPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261289E41064766F2173E1D3 /* DetachedPanelController.swift */; };
 		53E82C87B272BD166CDCD8A9 /* DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82AF28B66B614A854E5F698D /* DebugLogger.swift */; };
+		61632756C26C3356E9EA64DE /* NotchLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A74A403B7529AB525D61186 /* NotchLayoutTests.swift */; };
 		6960D13B8A1FB3BA08C7A4AE /* NotchRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AE3910A7746DD0771601F1 /* NotchRootView.swift */; };
 		70F60E83065ADE5D2DF0E3FB /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 555992B08FD28E599835C2E4 /* SettingsView.swift */; };
 		7DF9DDEDAA5844D3A98D7CF7 /* FaviconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2FB3D1D41E0DE2DF971BDB5 /* FaviconService.swift */; };
 		7F7D3A19A2D0E90B29EB6ACA /* NotchDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D81C2E2ED626A3F0574F3 /* NotchDetectorTests.swift */; };
+		88B16D23CD30E305D375AF9E /* NotchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FA449318C0F626DE642A16 /* NotchViewModel.swift */; };
+		8D1645EA0E88BE7E7DBACDE5 /* LogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BF0F7F3098CB3676CCF668 /* LogStore.swift */; };
 		917476EC1BBA43946D3C0D04 /* TabManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B9755ABBBA28B9C5084DDC /* TabManager.swift */; };
 		920AA457F2024B4090E908E9 /* WebTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = A739C971DD1B96211AA6C4C4 /* WebTab.swift */; };
 		A2ADB4939C236AFF3D3638FD /* WebContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D8A066A7786C24028485EA /* WebContainerView.swift */; };
 		AB05A5028BA834F3EE6CD821 /* AvatarGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3DE6C10CD10900A569B8DA0 /* AvatarGenerator.swift */; };
+		ACC20B6192A4BF6B34355C65 /* DebugPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A29EF4A186C60A9C1091245 /* DebugPanelController.swift */; };
+		B65AC51A72CEBA0DF59BAFEE /* PanelWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0703D4A2CA847804FB44EA6E /* PanelWindow.swift */; };
+		C3E97ADC00384DE0059144B4 /* TabManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EDC2A77A5776F22BB3F3565 /* TabManagerTests.swift */; };
+		CED20B2522C48AA442E3384E /* LoginItemService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBFA71BCA4EAA8B1F3625C30 /* LoginItemService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,22 +43,42 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0703D4A2CA847804FB44EA6E /* PanelWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelWindow.swift; sourceTree = "<group>"; };
 		1763F81DEA7E9577EEE301CB /* WebIslandTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WebIslandTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A74A403B7529AB525D61186 /* NotchLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchLayoutTests.swift; sourceTree = "<group>"; };
 		1CF01B84C984290752582F2A /* WebIsland.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WebIsland.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E0D460E308B352A6D8D7B99 /* NotchDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchDetector.swift; sourceTree = "<group>"; };
 		261289E41064766F2173E1D3 /* DetachedPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetachedPanelController.swift; sourceTree = "<group>"; };
 		2A9A71ECA91C23BBD9DD1A33 /* NotchWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchWindowController.swift; sourceTree = "<group>"; };
+		2EDC2A77A5776F22BB3F3565 /* TabManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManagerTests.swift; sourceTree = "<group>"; };
 		35B9755ABBBA28B9C5084DDC /* TabManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManager.swift; sourceTree = "<group>"; };
 		4D8D81C2E2ED626A3F0574F3 /* NotchDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchDetectorTests.swift; sourceTree = "<group>"; };
 		555992B08FD28E599835C2E4 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		6CC0E376D8A98A23018F1395 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		78BF0F7F3098CB3676CCF668 /* LogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStore.swift; sourceTree = "<group>"; };
 		82AF28B66B614A854E5F698D /* DebugLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLogger.swift; sourceTree = "<group>"; };
+		8A29EF4A186C60A9C1091245 /* DebugPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugPanelController.swift; sourceTree = "<group>"; };
 		8CEDF3CB24DDEBB570D7A9BD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		99C32A186833CA11BFCC0464 /* WebCapabilitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebCapabilitiesTests.swift; sourceTree = "<group>"; };
 		A739C971DD1B96211AA6C4C4 /* WebTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebTab.swift; sourceTree = "<group>"; };
 		B2FB3D1D41E0DE2DF971BDB5 /* FaviconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconService.swift; sourceTree = "<group>"; };
 		C3DE6C10CD10900A569B8DA0 /* AvatarGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarGenerator.swift; sourceTree = "<group>"; };
+		DBFA71BCA4EAA8B1F3625C30 /* LoginItemService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemService.swift; sourceTree = "<group>"; };
+		F2FA449318C0F626DE642A16 /* NotchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchViewModel.swift; sourceTree = "<group>"; };
 		F6D8A066A7786C24028485EA /* WebContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebContainerView.swift; sourceTree = "<group>"; };
 		F8AE3910A7746DD0771601F1 /* NotchRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchRootView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C76D1C82F23899B4187BFDD5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				28C2B0755B4BDAF84401ECF7 /* KeyboardShortcuts in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		2740C373F8311BF157420126 = {
@@ -73,6 +103,9 @@
 			isa = PBXGroup;
 			children = (
 				4D8D81C2E2ED626A3F0574F3 /* NotchDetectorTests.swift */,
+				1A74A403B7529AB525D61186 /* NotchLayoutTests.swift */,
+				2EDC2A77A5776F22BB3F3565 /* TabManagerTests.swift */,
+				99C32A186833CA11BFCC0464 /* WebCapabilitiesTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -82,6 +115,8 @@
 			children = (
 				82AF28B66B614A854E5F698D /* DebugLogger.swift */,
 				B2FB3D1D41E0DE2DF971BDB5 /* FaviconService.swift */,
+				DBFA71BCA4EAA8B1F3625C30 /* LoginItemService.swift */,
+				78BF0F7F3098CB3676CCF668 /* LogStore.swift */,
 				35B9755ABBBA28B9C5084DDC /* TabManager.swift */,
 			);
 			path = Services;
@@ -91,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				8CEDF3CB24DDEBB570D7A9BD /* AppDelegate.swift */,
+				6CC0E376D8A98A23018F1395 /* main.swift */,
 				F1025F9AD8F92D4477C99B2A /* Controllers */,
 				F12F1C90C09FF0C447EFF0AF /* Models */,
 				A4FFD1605DAF5B0EEC22791C /* Services */,
@@ -122,8 +158,10 @@
 		F1025F9AD8F92D4477C99B2A /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				8A29EF4A186C60A9C1091245 /* DebugPanelController.swift */,
 				261289E41064766F2173E1D3 /* DetachedPanelController.swift */,
 				2A9A71ECA91C23BBD9DD1A33 /* NotchWindowController.swift */,
+				0703D4A2CA847804FB44EA6E /* PanelWindow.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -131,6 +169,7 @@
 		F12F1C90C09FF0C447EFF0AF /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				F2FA449318C0F626DE642A16 /* NotchViewModel.swift */,
 				A739C971DD1B96211AA6C4C4 /* WebTab.swift */,
 			);
 			path = Models;
@@ -162,6 +201,7 @@
 			buildConfigurationList = 5EE242286A8EE55F5F2FD9F4 /* Build configuration list for PBXNativeTarget "WebIsland" */;
 			buildPhases = (
 				C20DA71541FF8339B6B52304 /* Sources */,
+				C76D1C82F23899B4187BFDD5 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -169,6 +209,7 @@
 			);
 			name = WebIsland;
 			packageProductDependencies = (
+				DEC22D5A7429429E2ED10828 /* KeyboardShortcuts */,
 			);
 			productName = WebIsland;
 			productReference = 1CF01B84C984290752582F2A /* WebIsland.app */;
@@ -200,6 +241,9 @@
 			);
 			mainGroup = 2740C373F8311BF157420126;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C022FBA92897AB532BFAEBF4 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E0F2208E0A957EDA3A6C3F59 /* Products */;
 			projectDirPath = "";
@@ -219,15 +263,21 @@
 				3818771F8B1681165C7EF9C3 /* AppDelegate.swift in Sources */,
 				AB05A5028BA834F3EE6CD821 /* AvatarGenerator.swift in Sources */,
 				53E82C87B272BD166CDCD8A9 /* DebugLogger.swift in Sources */,
+				ACC20B6192A4BF6B34355C65 /* DebugPanelController.swift in Sources */,
 				418F158A7D910DE23C58BF9E /* DetachedPanelController.swift in Sources */,
 				7DF9DDEDAA5844D3A98D7CF7 /* FaviconService.swift in Sources */,
+				8D1645EA0E88BE7E7DBACDE5 /* LogStore.swift in Sources */,
+				CED20B2522C48AA442E3384E /* LoginItemService.swift in Sources */,
 				0EEAE6A4B639D6E10FB733D0 /* NotchDetector.swift in Sources */,
 				6960D13B8A1FB3BA08C7A4AE /* NotchRootView.swift in Sources */,
+				88B16D23CD30E305D375AF9E /* NotchViewModel.swift in Sources */,
 				09F88320328B94626A4CBCCB /* NotchWindowController.swift in Sources */,
+				B65AC51A72CEBA0DF59BAFEE /* PanelWindow.swift in Sources */,
 				70F60E83065ADE5D2DF0E3FB /* SettingsView.swift in Sources */,
 				917476EC1BBA43946D3C0D04 /* TabManager.swift in Sources */,
 				A2ADB4939C236AFF3D3638FD /* WebContainerView.swift in Sources */,
 				920AA457F2024B4090E908E9 /* WebTab.swift in Sources */,
+				04AD2073B9D26D5A5E98E15B /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +286,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				7F7D3A19A2D0E90B29EB6ACA /* NotchDetectorTests.swift in Sources */,
+				61632756C26C3356E9EA64DE /* NotchLayoutTests.swift in Sources */,
+				C3E97ADC00384DE0059144B4 /* TabManagerTests.swift in Sources */,
+				1D00DAF748D438AE1BE17A7E /* WebCapabilitiesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -480,6 +533,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C022FBA92897AB532BFAEBF4 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DEC22D5A7429429E2ED10828 /* KeyboardShortcuts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C022FBA92897AB532BFAEBF4 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
+			productName = KeyboardShortcuts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3C431C7D5826A1A7F2739CDF /* Project object */;
 }
