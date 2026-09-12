@@ -1,0 +1,12 @@
+# AI_MODELS.json — WebIsland
+
+{
+  "platform": "macos",
+  "models": [],
+  "cache": {
+    "faviconMemory": "NSCache",
+    "faviconDiskTTL Days": 7,
+    "hitRateBudget": 0.7
+  },
+  "note": "LLM 모델 미사용. 파비콘 캐시 정책만 관리. 변경 시 본 파일 갱신."
+}
