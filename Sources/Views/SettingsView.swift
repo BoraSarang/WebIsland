@@ -5,41 +5,58 @@ struct SettingsView: View {
     @AppStorage("showInDock") var showInDock: Bool = false
     @AppStorage("windowMode") var windowMode: String = WindowMode.attached.rawValue
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
-    
+
     var body: some View {
         Form {
-            Section(NSLocalizedString("settings.general", comment: "")) {
+            Section {
                 Toggle(NSLocalizedString("settings.launchAtLogin", comment: ""), isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, enabled in
                         LoginItemService.isEnabled = enabled
                     }
                 Toggle(NSLocalizedString("settings.showInDock", comment: ""), isOn: $showInDock)
-                    .help(NSLocalizedString("settings.showInDock.help", comment: ""))
                     .onChange(of: showInDock) { _, _ in
                         (NSApp.delegate as? AppDelegate)?.applyDockVisibility()
                     }
+            } header: {
+                Text(NSLocalizedString("settings.general", comment: ""))
+            } footer: {
+                Text(NSLocalizedString("settings.showInDock.help", comment: ""))
             }
-            Section(NSLocalizedString("settings.hotkey", comment: "")) {
-                KeyboardShortcuts.Recorder(for: .togglePanel)
+
+            Section {
+                LabeledContent(NSLocalizedString("settings.hotkey.toggle", comment: "")) {
+                    KeyboardShortcuts.Recorder(for: .togglePanel)
+                }
+            } header: {
+                Text(NSLocalizedString("settings.hotkey", comment: ""))
             }
-            Section(NSLocalizedString("settings.windowMode", comment: "")) {
-                Picker(
-                    NSLocalizedString("settings.windowMode", comment: ""),
-                    selection: $windowMode
-                ) {
+
+            Section {
+                Picker(selection: $windowMode) {
                     Text(NSLocalizedString("settings.windowMode.attached", comment: ""))
                         .tag(WindowMode.attached.rawValue)
                     Text(NSLocalizedString("settings.windowMode.detached", comment: ""))
                         .tag(WindowMode.detached.rawValue)
-                }.pickerStyle(.radioGroup)
+                } label: {
+                    EmptyView()
+                }
+                .pickerStyle(.radioGroup)
+                .labelsHidden()
+            } header: {
+                Text(NSLocalizedString("settings.windowMode", comment: ""))
+            } footer: {
                 Text(windowModeDesc)
-                    .font(.caption).foregroundColor(.secondary)
             }
+
             Section {
                 Text(NSLocalizedString("settings.language.note", comment: ""))
-                    .font(.caption2).foregroundColor(.secondary)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
             }
-        }.padding(20).frame(width: 480, height: 360)
+        }
+        .formStyle(.grouped)
+        .padding(.horizontal, 8)
+        .frame(width: 480, height: 420)
     }
 
     private var windowModeDesc: String {

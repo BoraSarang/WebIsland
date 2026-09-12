@@ -134,7 +134,7 @@ struct TabStripView: View {
                 .buttonStyle(.plain)
                 .foregroundColor(.white)
                 .keyboardShortcut("t", modifiers: .command)
-                .help("새 탭 (⌘T)")
+                .help("\(NSLocalizedString("menu.newTab", comment: "")) (⌘T)")
         }
         .frame(height: 32)
     }
@@ -144,8 +144,10 @@ struct TabStripView: View {
         FaviconView(tab: tab, isActive: activeID == tab.id)
             .onTapGesture { onSelect(tab) }
             .contextMenu {
-                Button(tab.isPinned ? "고정 해제" : "고정") { onTogglePin(tab) }
-                Button("닫기") { onClose(tab) }
+                Button(tab.isPinned
+                    ? NSLocalizedString("tab.unpin", comment: "")
+                    : NSLocalizedString("tab.pin", comment: "")) { onTogglePin(tab) }
+                Button(NSLocalizedString("tab.close", comment: "")) { onClose(tab) }
             }
             .keyboardShortcut(
                 KeyEquivalent(Character("\(index + 1)")),
@@ -228,10 +230,14 @@ struct ToolbarView: View {
             .keyboardShortcut("r", modifiers: .command)
             Spacer()
             if editing {
-                TextField("주소 입력", text: $draft, onCommit: {
-                    editing = false
-                    onNavigate(draft)
-                })
+                TextField(
+                    NSLocalizedString("omnibox.placeholder", comment: ""),
+                    text: $draft,
+                    onCommit: {
+                        editing = false
+                        onNavigate(draft)
+                    }
+                )
                 .textFieldStyle(.roundedBorder)
                 .font(.system(size: 12))
                 .frame(width: 200)
@@ -241,7 +247,7 @@ struct ToolbarView: View {
                     draft = ""
                     editing = true
                 } label: {
-                    Text("주소를 입력하세요")
+                    Text(NSLocalizedString("omnibox.newTabHint", comment: ""))
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
                 }
@@ -264,7 +270,7 @@ struct ToolbarView: View {
             }
             Spacer()
             Menu {
-                Button("새 탭") { onAddTab() }
+                Button(NSLocalizedString("menu.newTab", comment: "")) { onAddTab() }
                 Button(NSLocalizedString("menu.settings", comment: "")) { onOpenSettings() }
             } label: {
                 Image(systemName: "ellipsis")

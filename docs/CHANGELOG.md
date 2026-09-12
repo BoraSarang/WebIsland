@@ -2,6 +2,10 @@
 
 ## [Unreleased] — macos
 
+- [macos] 스트링 통일·설정 Form: 하드코딩 한글 제거
+  (`menu.newTab/tab.close/tab.pin/tab.unpin/omnibox.*` 키 추가, 한·영).
+  상태바 메뉴와 `…` 메뉴 동일 키 사용. 설정 화면 grouped Form +
+  header/footer 정리 + 단축키 `LabeledContent` 행. unit 18건 통과, lint error 0.
 - [macos] 웹뷰 390 인셋·다운로드·JS: 패널 400 안에 웹 390 중앙 배치 (좌우 5px).
   JS 명시 활성화 + 헤드리스 실행 테스트로 확인. `WKDownloadDelegate`로
   표시 불가 MIME → `~/Downloads` 저장 (`E-MAC-NET-0002` 추가).
