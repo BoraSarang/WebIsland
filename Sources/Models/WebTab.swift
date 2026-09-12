@@ -22,6 +22,9 @@ final class WebTab: Identifiable {
     var url: URL { URL(string: urlString)! }
     var host: String { url.host ?? urlString }
     var firstLetter: String { String(host.prefix(1)).uppercased() }
+
+    /// 새 탭 안내 페이지 (스키마 변경 없는 transient 판별).
+    var isNewTabPage: Bool { urlString == "about:blank" }
 }
 
 enum WindowMode: String, Codable, CaseIterable {

@@ -5,10 +5,10 @@ struct NotchRootView: View {
     var windowMode: WindowMode
     var onModeChange: (WindowMode) -> Void
 
+    @ObservedObject var viewModel: NotchViewModel
     @StateObject private var tabManager = TabManager()
-    @State private var state: NotchState = .idle
 
-    enum NotchState { case idle, hovered, expanded }
+    var state: NotchViewModel.State { viewModel.state }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,39 +23,41 @@ struct NotchRootView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: state)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: tabManager.activeTabID)
         .onHover { hovering in
-            if hovering {
-                state = state == .expanded ? .expanded : .hovered
-            } else if state != .expanded {
-                state = .idle
-            }
-        }
-        .onTapGesture {
-            DebugLogger.feature("NotchRoot", "노치 탭: \(state) → 토글")
-            state = (state == .expanded) ? .hovered : .expanded
+            guard state != .expanded else { return }
+            viewModel.state = hovering ? .hovered : .idle
         }
     }
 
-    // MARK: - Notch Pill (180→420×40)
+    // MARK: - Notch Pill (노치 실측 기준, 중앙은 비움)
 
     var notchPill: some View {
         HStack(spacing: 8) {
             if state == .idle {
+                // 노치 전체가 가려지므로 지시자는 좌측 가시 영역에 배치.
                 if let tab = tabManager.activeTab {
                     FaviconView(tab: tab, isActive: true)
                 } else {
                     Circle().fill(Color.white.opacity(0.8)).frame(width: 8, height: 8)
                 }
+                Spacer()
             } else {
                 TabStripView(
                     tabs: tabManager.tabs,
                     activeID: tabManager.activeTabID,
+                    gapWidth: viewModel.centerGap,
                     onSelect: { tabManager.selectTab($0) },
                     onClose: { tabManager.closeTab($0) },
+                    onTogglePin: { tabManager.togglePin($0) },
                     onAdd: { tabManager.addTab() }
                 )
             }
         }
-        .frame(width: state == .idle ? 180 : 420, height: 40)
+        // 가시 영역 36pt 한가운데에 오도록 leading 6 (아이콘 24).
+        .padding(.horizontal, state == .idle ? 6 : 16)
+        .frame(
+            width: state == .idle ? viewModel.idleWidth : viewModel.expandedWidth,
+            height: 40
+        )
         .background(Color.black)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .shadow(
@@ -63,6 +65,10 @@ struct NotchRootView: View {
             radius: 8,
             y: 4
         )
+        .onTapGesture {
+            DebugLogger.feature("NotchRoot", "노치 탭: \(state) → 토글")
+            viewModel.state = (state == .expanded) ? .hovered : .expanded
+        }
     }
 
     // MARK: - Browser Panel (400×480, gap 0)
@@ -74,9 +80,15 @@ struct NotchRootView: View {
             ToolbarView(
                 webView: webView,
                 url: tab.url,
-                onNavigate: { tabManager.navigateActive(to: $0) }
+                isNewTabPage: tab.isNewTabPage,
+                onNavigate: { tabManager.navigateActive(to: $0) },
+                onAddTab: { tabManager.addTab() },
+                onOpenSettings: {
+                    (NSApp.delegate as? AppDelegate)?.openSettings()
+                }
             )
-            WebContainerView(webView: webView, url: tab.url)
+            WebContainerView(webView: webView, url: tab.url, isNewTabPage: tab.isNewTabPage)
+                .frame(width: 390)
         }
         .frame(width: 400, height: 480)
         .background(.ultraThinMaterial)
@@ -85,28 +97,38 @@ struct NotchRootView: View {
     }
 }
 
-// MARK: - Tab Strip (32px 행, 파비콘 16px, Cmd+1~5)
+// MARK: - Tab Strip (물리 노치 중앙 비움, 좌우 분할)
 
 struct TabStripView: View {
     var tabs: [WebTab]
     var activeID: WebTab.ID?
+    var gapWidth: CGFloat
     var onSelect: (WebTab) -> Void
     var onClose: (WebTab) -> Void
+    var onTogglePin: (WebTab) -> Void
     var onAdd: () -> Void
+
+    private var leftTabs: [WebTab] {
+        Array(tabs.prefix((tabs.count + 1) / 2))
+    }
+
+    private var rightTabs: [WebTab] {
+        Array(tabs.dropFirst((tabs.count + 1) / 2))
+    }
 
     var body: some View {
         HStack(spacing: 4) {
-            ForEach(Array(tabs.prefix(5).enumerated()), id: \.element.id) { index, tab in
-                FaviconView(tab: tab, isActive: activeID == tab.id)
-                    .onTapGesture { onSelect(tab) }
-                    .contextMenu {
-                        Button("닫기") { onClose(tab) }
-                    }
-                    .keyboardShortcut(
-                        KeyEquivalent(Character("\(index + 1)")),
-                        modifiers: .command
-                    )
-                    .help("\(tab.host) (⌘\(index + 1))")
+            HStack(spacing: 4) {
+                ForEach(Array(leftTabs.enumerated()), id: \.element.id) { index, tab in
+                    tabButton(tab, index: index)
+                }
+            }
+            Spacer()
+                .frame(width: gapWidth)
+            HStack(spacing: 4) {
+                ForEach(Array(rightTabs.enumerated()), id: \.element.id) { offset, tab in
+                    tabButton(tab, index: leftTabs.count + offset)
+                }
             }
             Button("+") { onAdd() }
                 .buttonStyle(.plain)
@@ -115,6 +137,21 @@ struct TabStripView: View {
                 .help("새 탭 (⌘T)")
         }
         .frame(height: 32)
+    }
+
+    @ViewBuilder
+    private func tabButton(_ tab: WebTab, index: Int) -> some View {
+        FaviconView(tab: tab, isActive: activeID == tab.id)
+            .onTapGesture { onSelect(tab) }
+            .contextMenu {
+                Button(tab.isPinned ? "고정 해제" : "고정") { onTogglePin(tab) }
+                Button("닫기") { onClose(tab) }
+            }
+            .keyboardShortcut(
+                KeyEquivalent(Character("\(index + 1)")),
+                modifiers: .command
+            )
+            .help("\(tab.host) (⌘\(index + 1))")
     }
 }
 
@@ -135,6 +172,11 @@ struct FaviconView: View {
                     .resizable()
                     .frame(width: 16, height: 16)
                     .clipShape(RoundedRectangle(cornerRadius: 4))
+            } else if tab.isNewTabPage {
+                Image(systemName: "plus")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(width: 16, height: 16)
             } else {
                 Text(tab.firstLetter)
                     .font(.system(size: 12, weight: .bold))
@@ -143,6 +185,13 @@ struct FaviconView: View {
             }
         }
         .frame(width: 24, height: 24)
+        .overlay(alignment: .bottomTrailing) {
+            if tab.isPinned, !tab.isNewTabPage {
+                Circle()
+                    .fill(Color.accentColor)
+                    .frame(width: 6, height: 6)
+            }
+        }
         .task(id: tab.urlString) {
             icon = await FaviconService.shared.fetchFavicon(for: tab.url)
         }
@@ -154,10 +203,14 @@ struct FaviconView: View {
 struct ToolbarView: View {
     var webView: WKWebView
     var url: URL
+    var isNewTabPage: Bool
     var onNavigate: (String) -> Void
+    var onAddTab: () -> Void
+    var onOpenSettings: () -> Void
 
     @State private var editing = false
     @State private var draft = ""
+    @FocusState private var addressFocused: Bool
 
     var body: some View {
         HStack(spacing: 4) {
@@ -182,6 +235,17 @@ struct ToolbarView: View {
                 .textFieldStyle(.roundedBorder)
                 .font(.system(size: 12))
                 .frame(width: 200)
+                .focused($addressFocused)
+            } else if isNewTabPage {
+                Button {
+                    draft = ""
+                    editing = true
+                } label: {
+                    Text("주소를 입력하세요")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
             } else {
                 Button {
                     draft = url.absoluteString
@@ -199,12 +263,28 @@ struct ToolbarView: View {
                 .buttonStyle(.plain)
             }
             Spacer()
-            Button { } label: {
+            Menu {
+                Button("새 탭") { onAddTab() }
+                Button(NSLocalizedString("menu.settings", comment: "")) { onOpenSettings() }
+            } label: {
                 Image(systemName: "ellipsis")
             }
+            .menuStyle(.borderlessButton)
+            .frame(width: 28)
         }
         .padding(8)
         .frame(height: 36)
+        .onAppear {
+            // 새 탭은 주소 입력부터 시작.
+            if isNewTabPage {
+                draft = ""
+                editing = true
+                // 포커스는 다음 런루프에 (윈도우 키 전환 후).
+                DispatchQueue.main.async {
+                    addressFocused = true
+                }
+            }
+        }
     }
 }
 
@@ -219,9 +299,14 @@ struct DetachedBrowserView: View {
                 ToolbarView(
                     webView: webView,
                     url: tab.url,
-                    onNavigate: { tabManager.navigateActive(to: $0) }
+                    isNewTabPage: tab.isNewTabPage,
+                    onNavigate: { tabManager.navigateActive(to: $0) },
+                    onAddTab: { tabManager.addTab() },
+                    onOpenSettings: {
+                        (NSApp.delegate as? AppDelegate)?.openSettings()
+                    }
                 )
-                WebContainerView(webView: webView, url: tab.url)
+                WebContainerView(webView: webView, url: tab.url, isNewTabPage: tab.isNewTabPage)
             }
         }
         .frame(width: 400, height: 500)

@@ -10,7 +10,7 @@ final class DetachedPanelController {
             .flatMap { NSRectFromString($0) }
             ?? NSRect(x: 600, y: 400, width: 400, height: 500)
 
-        window = NSWindow(
+        window = PanelWindow(
             contentRect: saved,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
@@ -24,7 +24,12 @@ final class DetachedPanelController {
         window.titlebarAppearsTransparent = true
         window.collectionBehavior = [.canJoinAllSpaces]
         
-        window.contentView = NSHostingView(rootView: DetachedBrowserView())
+        let hosting = NSHostingView(rootView: DetachedBrowserView())
+        hosting.sizingOptions = []
+        hosting.frame = NSRect(origin: .zero, size: saved.size)
+        hosting.autoresizingMask = [.width, .height]
+        window.contentView = hosting
+        window.setFrame(saved, display: false)
     }
     
     func show() { window.orderFrontRegardless() }
