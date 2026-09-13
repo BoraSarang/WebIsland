@@ -1,6 +1,6 @@
 # PLAN v0.6 — 전체 리팩토링 (P0+P1 + E2E)
 
-> 플랫폼: macos / 상태: Phase 1 완료, Phase 2 대기 / 기준: 3방향 정밀 분석 (2026-09-14)
+> 플랫폼: macos / 상태: Phase 2 완료, Phase 3 대기 / 기준: 3방향 정밀 분석 (2026-09-14)
 
 ## 0. 확정 범위
 
@@ -31,12 +31,18 @@
 - 1-5 `onModeChange` 삭제·`AppInfo` 구조체화 (`large_tuple` 해소).
 - 게이트: unit 47건 통과, lint error 0 (경고 11→4건, 잔여는 Phase 2 구조분).
 
-## 3. Phase 2 — 책임 분리 (이후)
+## 3. Phase 2 — 책임 분리 (완료)
 
-- 2-1 `Coordinator` → `CertTrustHandler` + `DownloadRouting`.
-- 2-2 `HoverTracker` 추출 + `windowMode` 일원화.
-- 2-3 `AppDelegate` → `MenuBuilder`·`SettingsWindowFactory`.
-- 2-4 `TabManager` → `TabStore`·`WebViewPool`.
+- 2-1 `Coordinator` → `CertTrustHandler` + `DownloadRouting` + `WebProgressBar`를
+  `BrowserChromeView.swift`로 이동. `WebContainerView` type_body 해소.
+  `DownloadRouting` 테스트 3건. `@MainActor` 경계 1건 수정 (컴파일 실패 → 해결).
+- 2-2 `HoverTracker` 추출 + `windowMode` 일원화 (`storedWindowMode` 삭제).
+  `HoverTrackerTests` 4건 (진입·무시·디바운스·취소).
+- 2-3 `AppDelegate` → `MenuBuilder`·`SettingsWindowFactory` (동작 동일).
+- 2-4 `TabManager` → `WebViewPool` 위임. 닫기 시 풀 카운터도 갱신 (기존 stale 개선).
+- 게이트: unit 54건 통과, lint error 0 (경고 4→2건).
+- 잔여 경고 2건 (`DownloadManager`·`NotchWindowController` type_body)은
+  파일 I/O·윈도우 공장 분리 시 해소 → 후속으로 이월.
 
 ## 4. Phase 3 — 테스트 + E2E
 

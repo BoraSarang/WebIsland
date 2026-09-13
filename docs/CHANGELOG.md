@@ -13,6 +13,11 @@
   포트 생략 `HostPort` 통합 + 테스트 3건, `NotchMetrics` 상수화,
   `HostingViewFactory`, `onModeChange` 삭제·`AppInfo` 구조체화.
   unit 47건 통과, lint error 0 (경고 11→4건). perf/cache 영향 없음.
+- [macos] 리팩토링 Phase 2 (책임 분리):
+  `CertTrustHandler`·`DownloadRouting`·`HoverTracker`·`MenuBuilder`·
+  `SettingsWindowFactory`·`WebViewPool` 추출 + `windowMode` 일원화.
+  테스트 7건 신규 (`DownloadRouting` 3·`HoverTracker` 4).
+  unit 54건 통과, lint error 0 (경고 4→2건). perf/cache 영향 없음.
 
 - [macos] Final 아이콘 교체 (T-012):
   3D 공식 아이콘 → 플랫 야자섬 Final(Light: 흰 불투명 배경 + 검정섬).

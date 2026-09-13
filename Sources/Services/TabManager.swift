@@ -3,16 +3,14 @@ import Combine
 import SwiftData
 import WebKit
 
-/// 탭 영속(SwiftData) + WKWebView 풀(활성 1 + 캐시 2, LRU 제거).
+/// 탭 영속(SwiftData) + WKWebView 풀(`WebViewPool` 위임, 활성 1 + 캐시 2).
 /// 풀 밖 탭은 URL만 보관, on-demand 로드. 로그인 유지는 공유 데이터스토어.
 @MainActor
 final class TabManager: ObservableObject {
     @Published private(set) var tabs: [WebTab] = []
     @Published var activeTabID: WebTab.ID?
 
-    private var pool: [WebTab.ID: WKWebView] = [:]
-    private var lru: [WebTab.ID] = []
-    private let maxPoolSize = 3
+    private let webPool = WebViewPool()
 
     private var context: ModelContext?
 
@@ -118,10 +116,7 @@ final class TabManager: ObservableObject {
             return
         }
         DebugLogger.feature("TabManager.closeTab", tab.host)
-        if let webView = pool.removeValue(forKey: tab.id) {
-            webView.stopLoading()
-        }
-        lru.removeAll { $0 == tab.id }
+        webPool.remove(tab.id)
         tabs.removeAll { $0.id == tab.id }
         context?.delete(tab)
         if activeTabID == tab.id {
@@ -191,48 +186,11 @@ final class TabManager: ObservableObject {
         return host.rangeOfCharacter(from: allowed.inverted) == nil
     }
 
-    // MARK: - WebView Pool
+    // MARK: - WebView Pool (`WebViewPool` 위임)
 
     func webView(for tab: WebTab) -> WKWebView {
-        if let existing = pool[tab.id] {
-            touch(tab.id)
-            DebugLogger.cache(hit: true, "웹뷰 풀: \(tab.host)")
-            // 새 탭 안내 페이지는 뷰(WebContainerView)가 로드 담당.
-            if existing.url == nil, !tab.isNewTabPage {
-                existing.load(URLRequest(url: tab.url))
-            }
-            return existing
-        }
-        DebugLogger.cache(hit: false, "웹뷰 풀: \(tab.host)")
-        let config = WKWebViewConfiguration()
-        config.websiteDataStore = .default()
-        config.applicationNameForUserAgent = "WebIsland/0.1"
-        if #available(macOS 11.0, *) {
-            config.defaultWebpagePreferences.allowsContentJavaScript = true
-        }
-        let webView = WKWebView(frame: .zero, configuration: config)
-        if !tab.isNewTabPage {
-            webView.load(URLRequest(url: tab.url))
-        }
-        pool[tab.id] = webView
-        touch(tab.id)
-        evictIfNeeded()
-        LogStore.shared.poolSize = pool.count
-        DebugLogger.perf("웹뷰 풀 크기: \(pool.count)/\(maxPoolSize)")
-        return webView
+        webPool.webView(for: tab, activeID: activeTabID)
     }
 
-    private func touch(_ id: WebTab.ID) {
-        lru.removeAll { $0 == id }
-        lru.append(id)
-    }
-
-    private func evictIfNeeded() {
-        while lru.count > maxPoolSize, let oldest = lru.first {
-            lru.removeFirst()
-            if oldest != activeTabID {
-                pool.removeValue(forKey: oldest)?.stopLoading()
-            }
-        }
-    }
+    var poolSize: Int { webPool.count }
 }

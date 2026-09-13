@@ -37,79 +37,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Main nib 없이 동작하므로 프로그래밍 방식으로 구축.
     /// Edit 메뉴가 있어야 TextField에서 표준 단축키·우클릭 편집이 동작.
+    /// 구성은 `MenuBuilder` 단일 진실.
     func buildMainMenu() {
-        let main = NSMenu()
-
-        let appItem = NSMenuItem()
-        main.addItem(appItem)
-        let appMenu = NSMenu()
-        let about = NSMenuItem(
-            title: NSLocalizedString("menu.about", comment: ""),
-            action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)),
-            keyEquivalent: ""
-        )
-        appMenu.addItem(about)
-        appMenu.addItem(.separator())
-        let settings = NSMenuItem(
-            title: NSLocalizedString("menu.settings", comment: ""),
-            action: #selector(openSettings),
-            keyEquivalent: ","
-        )
-        settings.target = self
-        appMenu.addItem(settings)
-        appMenu.addItem(.separator())
-        let quit = NSMenuItem(
-            title: NSLocalizedString("menu.quit", comment: ""),
-            action: #selector(NSApplication.terminate(_:)),
-            keyEquivalent: "q"
-        )
-        appMenu.addItem(quit)
-        appItem.submenu = appMenu
-
-        let editItem = NSMenuItem()
-        main.addItem(editItem)
-        let edit = NSMenu(title: "Edit")
-        struct EditEntry {
-            let title: String
-            let action: Selector
-            let key: String
-            let modifiers: NSEvent.ModifierFlags
-        }
-        let editActions: [EditEntry] = [
-            EditEntry(title: "Undo", action: Selector(("undo:")), key: "z", modifiers: .command),
-            EditEntry(title: "Redo", action: Selector(("redo:")), key: "z", modifiers: [.command, .shift]),
-            EditEntry(title: "Cut", action: #selector(NSText.cut(_:)), key: "x", modifiers: .command),
-            EditEntry(title: "Copy", action: #selector(NSText.copy(_:)), key: "c", modifiers: .command),
-            EditEntry(title: "Paste", action: #selector(NSText.paste(_:)), key: "v", modifiers: .command),
-            EditEntry(title: "Select All", action: #selector(NSText.selectAll(_:)), key: "a", modifiers: .command)
-        ]
-        for (index, entry) in editActions.enumerated() {
-            if index == 2 {
-                edit.addItem(.separator())
-            }
-            let item = NSMenuItem(
-                title: entry.title, action: entry.action,
-                keyEquivalent: entry.key
-            )
-            item.keyEquivalentModifierMask = entry.modifiers
-            edit.addItem(item)
-        }
-        editItem.submenu = edit
-
-        let windowItem = NSMenuItem()
-        main.addItem(windowItem)
-        let windowMenu = NSMenu(title: "Window")
-        windowMenu.addItem(
-            withTitle: "Minimize", action: #selector(NSWindow.miniaturize(_:)),
-            keyEquivalent: "m"
-        )
-        windowMenu.addItem(
-            withTitle: "Close Window", action: #selector(NSWindow.performClose(_:)),
-            keyEquivalent: "w"
-        )
-        windowItem.submenu = windowMenu
-
-        NSApp.mainMenu = main
+        NSApp.mainMenu = MenuBuilder.mainMenu(settingsTarget: self)
     }
 
     // MARK: - Status Item
@@ -255,23 +185,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 노치 확장 패널(.screenSaver 레벨)이 설정 창을 가리지 않도록 먼저 접기.
         notchWindowController?.dismissPanel()
         if settingsWindow == nil {
-            let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 480, height: 420),
-                styleMask: [.titled, .closable],
-                backing: .buffered,
-                defer: false
-            )
-            window.title = NSLocalizedString("menu.settings", comment: "")
-            // 닫기 후에도 강한 참조 유지 → over-release 댕글링 크래시 방지.
-            window.isReleasedWhenClosed = false
-            // 일반 창보다 위에 뜨도록 floating 레벨.
-            window.level = .floating
-            let hosting = NSHostingView(rootView: SettingsView())
-            hosting.sizingOptions = []
-            window.contentView = hosting
-            window.setFrame(NSRect(x: 0, y: 0, width: 480, height: 420), display: false)
-            window.center()
-            settingsWindow = window
+            settingsWindow = SettingsWindowFactory.make()
         }
         settingsWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)

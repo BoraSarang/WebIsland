@@ -14,8 +14,7 @@ final class NotchWindowController {
     private var cancellables = Set<AnyCancellable>()
 
     private var mouseMonitor: Any?
-    private var lastMouseCheck = CFAbsoluteTime(0)
-    private var collapseWorkItem: DispatchWorkItem?
+    private let hoverTracker = HoverTracker()
     private var keyDownMonitor: Any?
 
     @AppStorage("windowMode") var windowMode: WindowMode = .attached
@@ -41,13 +40,13 @@ final class NotchWindowController {
             }
             .store(in: &cancellables)
         // 설정 화면에서 모드 변경 시 실시간 전환.
+        // @AppStorage가 UserDefaults를 직접 읽으므로 별도 조회 함수 없이 단일 진실.
         NotificationCenter.default.addObserver(
             forName: .wiWindowModeChanged,
             object: nil,
             queue: .main
         ) { [weak self] _ in
             guard let self else { return }
-            self.windowMode = self.storedWindowMode()
             self.switchMode(to: self.windowMode)
         }
         // ESC 키: 확장 패널 접기 / 분리 플로팅 닫기.
@@ -60,16 +59,25 @@ final class NotchWindowController {
         }
         setupMouseTracking()
         setupEscapeClose()
+        hoverTracker.onEnter = { [weak self] in
+            // 렌더 패스 재진입 방지: 상태 변경은 다음 런루프로.
+            DispatchQueue.main.async {
+                if self?.viewModel.state == .idle {
+                    self?.viewModel.state = .hovered
+                }
+            }
+        }
+        hoverTracker.onExit = { [weak self] in
+            if self?.viewModel.state != .expanded {
+                self?.viewModel.state = .idle
+            }
+        }
     }
 
-    private func storedWindowMode() -> WindowMode {
-        WindowMode(rawValue: UserDefaults.standard.string(forKey: "windowMode") ?? "") ?? .attached
-    }
-
-deinit {
+    deinit {
         mouseMonitor.map(NSEvent.removeMonitor)
         keyDownMonitor.map(NSEvent.removeMonitor)
-        collapseWorkItem?.cancel()
+        hoverTracker.cancel()
     }
 
     // MARK: - 상태별 윈도우 프레임 (순수 함수 — 단위 테스트 대상)
@@ -266,38 +274,12 @@ deinit {
     }
 
     func handleMouseMoved(_ event: NSEvent) {
-        // 60fps 스로틀
-        let now = CFAbsoluteTimeGetCurrent()
-        guard now - lastMouseCheck >= 1.0 / 60.0 else { return }
-        lastMouseCheck = now
-
-        guard let screen = NSScreen.main, let notchRect = screen.notchRect else { return }
-        let mouse = NSEvent.mouseLocation
-
-        if NotchDetector.isHover(mouse: mouse, notch: notchRect) {
-            collapseWorkItem?.cancel()
-            collapseWorkItem = nil
-            if viewModel.state == .idle {
-                // 렌더 패스 재진입 방지: 상태 변경은 다음 런루프에.
-                DispatchQueue.main.async { [weak self] in
-                    self?.viewModel.state = .hovered
-                }
-            }
-        } else if let panelFrame = notchWindow?.frame, !panelFrame.contains(mouse) {
-            scheduleCollapse()
-        }
-    }
-
-    private func scheduleCollapse() {
-        collapseWorkItem?.cancel()
-        let item = DispatchWorkItem { [weak self] in
-            guard let self else { return }
-            if self.viewModel.state != .expanded {
-                self.viewModel.state = .idle
-            }
-        }
-        collapseWorkItem = item
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: item)
+        hoverTracker.track(
+            mouse: NSEvent.mouseLocation,
+            panelFrame: notchWindow?.frame,
+            notch: NSScreen.main?.notchRect,
+            state: viewModel.state
+        )
     }
 
     /// 메뉴바 아이콘·단축키: 패널 열고 닫기.

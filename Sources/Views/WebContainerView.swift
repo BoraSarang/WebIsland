@@ -1,6 +1,4 @@
-import Cocoa
-import Combine
-import Security
+import Foundation
 import SwiftUI
 import WebKit
 
@@ -84,6 +82,7 @@ struct WebContainerView: NSViewRepresentable {
         weak var tab: WebTab?
         var onURLDidChange: (String) -> Void = { _ in }
         var onOpenNewWindow: (String) -> Void = { _ in }
+        private let certTrustHandler = CertTrustHandler()
 
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
             syncURL(from: webView)
@@ -126,71 +125,7 @@ struct WebContainerView: NSViewRepresentable {
             didReceive challenge: URLAuthenticationChallenge,
             completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
         ) {
-            guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
-                  let trust = challenge.protectionSpace.serverTrust
-            else {
-                completionHandler(.performDefaultHandling, nil)
-                return
-            }
-            let host = challenge.protectionSpace.host
-            if CertTrustService.trustedHosts().contains(host) {
-                DebugLogger.info("인증서 예외 적용(기억됨): \(host)")
-                completionHandler(.useCredential, URLCredential(trust: trust))
-                return
-            }
-            if CertTrustService.isPrivateIP(host) {
-                CertTrustService.remember(host: host)
-                DebugLogger.feature("CertTrust", "사설IP 자동 신뢰: \(host)")
-                completionHandler(.useCredential, URLCredential(trust: trust))
-                return
-            }
-            // WKNavigationDelegate로 didReceive를 구현하면 WebKit의 기본 신뢰
-            // 검증이 대리자 책임으로 대체된다. 시스템 체인에 유효한 인증서
-            // (예: github.com)는 프롬프트 없이 수락하고, 실제 검증에 실패한
-            // 인증서만 사용자 확인으로 보낸다.
-            // SecTrustEvaluate*는 네트워크(중간 CA/해지) 접근이 가능하므로
-            // 메인 런루프 대신 백그라운드에서 동기 검증한다.
-            // (SecTrustEvaluateAsyncWithError는 메인 호출 시 내부 큐 assert로
-            // 크래시하므로 사용하지 않는다.)
-            DispatchQueue.global(qos: .userInitiated).async {
-                var evalError: CFError?
-                let trusted = SecTrustEvaluateWithError(trust, &evalError)
-                DispatchQueue.main.async {
-                    if trusted {
-                        DebugLogger.feature("CertTrust", "시스템 신뢰 통과: \(host)")
-                        completionHandler(.useCredential, URLCredential(trust: trust))
-                    } else {
-                        DebugLogger.feature("CertTrust", "신뢰 검증 실패, 사용자 확인: \(host)")
-                        self.askToTrust(host: host, trust: trust, completionHandler: completionHandler)
-                    }
-                }
-            }
-        }
-
-        private func askToTrust(
-            host: String,
-            trust: SecTrust,
-            completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
-        ) {
-            let alert = NSAlert()
-            alert.messageText = NSLocalizedString("certrust.title", comment: "")
-            alert.informativeText = String(
-                format: NSLocalizedString("certrust.message", comment: ""),
-                host
-            )
-            alert.addButton(withTitle: NSLocalizedString("certrust.continue", comment: ""))
-            alert.addButton(withTitle: NSLocalizedString("certrust.cancel", comment: ""))
-            // 노치 패널은 `.screenSaver` 레벨이라 기본 알림은 뒤에 가려진다.
-            // 경고를 팝오버 위로 올려 사용자 확인이 가능하도록 한다.
-            alert.window.level = .screenSaver
-            if alert.runModal() == .alertFirstButtonReturn {
-                CertTrustService.remember(host: host)
-                DebugLogger.feature("CertTrust", "사용자 확인 신뢰: \(host)")
-                completionHandler(.useCredential, URLCredential(trust: trust))
-            } else {
-                DebugLogger.info("인증서 신뢰 거부됨: \(host)")
-                completionHandler(.cancelAuthenticationChallenge, nil)
-            }
+            certTrustHandler.handle(challenge: challenge, completionHandler: completionHandler)
         }
 
         // MARK: - 새창 (target=_blank·window.open → 새 탭)
@@ -244,9 +179,7 @@ struct WebContainerView: NSViewRepresentable {
             navigationAction: WKNavigationAction,
             didBecome download: WKDownload
         ) {
-            let filename = navigationAction.request.url?.lastPathComponent
-                ?? navigationAction.request.url?.absoluteString
-                ?? "파일"
+            let filename = DownloadRouting.actionFilename(request: navigationAction.request)
             DebugLogger.feature(
                 "Download",
                 "시작(action): \(filename)"
@@ -272,9 +205,7 @@ struct WebContainerView: NSViewRepresentable {
             navigationResponse: WKNavigationResponse,
             didBecome download: WKDownload
         ) {
-            let filename = navigationResponse.response.suggestedFilename
-                ?? navigationResponse.response.url?.absoluteString
-                ?? "파일"
+            let filename = DownloadRouting.responseFilename(response: navigationResponse.response)
             DebugLogger.feature(
                 "Download",
                 "시작(response): \(filename)"
@@ -290,12 +221,7 @@ struct WebContainerView: NSViewRepresentable {
             completionHandler: @escaping (URL?) -> Void
         ) {
             // 완료 전까지 임시 `.download` 파일로 저장하고, 완료 시 최종 이름으로 rename.
-            let base = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
-                ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-            let tempURL = DownloadManager.shared.uniqueDestination(
-                in: base,
-                suggested: "\(suggestedFilename).download"
-            )
+            let tempURL = DownloadRouting.tempURL(suggestedFilename: suggestedFilename)
             DebugLogger.feature("Download", "임시 저장: \(tempURL.lastPathComponent)")
             DownloadManager.shared.setDestination(tempURL, for: download)
             completionHandler(tempURL)
@@ -323,24 +249,6 @@ struct WebContainerView: NSViewRepresentable {
                 return
             }
             DownloadManager.shared.fail(id: id, error: error)
-        }
-    }
-}
-
-struct WebProgressBar: View {
-    @State private var progress: Double = 0
-    let webView: WKWebView
-
-    var body: some View {
-        GeometryReader { geo in
-            Rectangle()
-                .fill(Color.accentColor)
-                .frame(width: geo.size.width * progress, height: 2)
-                .opacity(progress >= 1.0 || progress == 0 ? 0 : 1)
-        }
-        .frame(height: 2)
-        .onReceive(webView.publisher(for: \.estimatedProgress)) { value in
-            progress = value
         }
     }
 }

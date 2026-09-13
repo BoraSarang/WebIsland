@@ -1,4 +1,6 @@
+import Combine
 import SwiftUI
+import WebKit
 
 // MARK: - Browser Chrome (노치/분리 공용: 진행바 + 툴바 + 트레이 + 웹뷰)
 
@@ -38,6 +40,25 @@ struct BrowserChromeView: View {
             )
                 .id(tab.id)
                 .frame(width: webWidth)
+        }
+    }
+}
+
+/// 웹뷰 상단 2px 로딩 진행바.
+struct WebProgressBar: View {
+    @State private var progress: Double = 0
+    let webView: WKWebView
+
+    var body: some View {
+        GeometryReader { geo in
+            Rectangle()
+                .fill(Color.accentColor)
+                .frame(width: geo.size.width * progress, height: 2)
+                .opacity(progress >= 1.0 || progress == 0 ? 0 : 1)
+        }
+        .frame(height: 2)
+        .onReceive(webView.publisher(for: \.estimatedProgress)) { value in
+            progress = value
         }
     }
 }
