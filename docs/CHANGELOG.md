@@ -2,6 +2,13 @@
 
 ## [Unreleased] — macos
 
+- [macos] Final 아이콘 교체 (T-012):
+  3D 공식 아이콘 → 플랫 야자섬 Final(Light: 흰 불투명 배경 + 검정섬).
+  `AppIcon.appiconset` 10종(zip 6종 + 1024에서 32·64·256·512 생성),
+  메뉴바는 Black → 18/36 다운스케일 2종만 + `isTemplate`·template intent 유지로
+  라이트/다크 자동 대응. 원본 4종 `Assets/Icons/Final_*` 보관.
+  unit 44건 통과, lint error 0. perf/cache 영향 없음.
+
 - [macos] 새창 열기 지원 (`target=_blank`·`window.open` → 새 탭):
   원인: `WKUIDelegate` 미설정이라 새창 요청이 조용히 버려짐.
   `WebContainerView`에 `uiDelegate` 배선 + `createWebViewWith` 구현 —
