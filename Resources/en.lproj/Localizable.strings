@@ -28,3 +28,16 @@
 "certrust.continue" = "Continue";
 "certrust.cancel" = "Cancel";
 "settings.language.note" = "Also known as 아이슬렌드 웹";
+"onboarding.title" = "Web Island Setup";
+"onboarding.status.required" = "Accessibility permission needed";
+"onboarding.status.required.desc" = "To detect mouse hovers around the notch, allow Web Island in System Settings.";
+"onboarding.status.granted" = "Accessibility permission granted";
+"onboarding.status.granted.desc" = "Notch hover detection is active.";
+"onboarding.status.badge.granted" = "Allowed";
+"onboarding.status.badge.required" = "Required";
+"onboarding.openSettings" = "Allow in System Settings";
+"onboarding.openSettings.help" = "Opens the Accessibility privacy pane in System Settings.";
+"onboarding.settingsOpenFailed" = "Could not open System Settings. Please allow Web Island under Accessibility manually.";
+"onboarding.skip" = "Later";
+"onboarding.start" = "Get Started";
+"onboarding.hint" = "You can still open the panel from the menu bar or keyboard shortcut without permission.";

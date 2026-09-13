@@ -12,6 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var fallbackPopover: NSPopover?
     var settingsWindow: NSWindow?
+    var onboardingController: OnboardingWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         DebugLogger.feature("App", "메뉴바 앱 시작")
@@ -22,7 +23,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setupHotKey()
         notchWindowController = NotchWindowController()
         notchWindowController.show()
-        requestAccessibilityPermission()
+        // 실행마다 자동 프롬프트 대신 온보딩 창으로만 안내.
+        // 권한이 이미 허용되어 있으면 창을 띄우지 않는다.
+        let onboarding = OnboardingWindowController()
+        onboarding.onFinished = { [weak self] in
+            self?.notchWindowController.refreshMouseTracking()
+        }
+        onboardingController = onboarding
+        onboarding.showIfNeeded()
     }
 
     // MARK: - Main Menu (편집 단축키 ⌘C/V/X/A/Z 동작용)
@@ -269,18 +277,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func quitApp() {
         NSApp.terminate(nil)
-    }
-
-    // MARK: - Permissions
-
-    func requestAccessibilityPermission() {
-        if AXIsProcessTrusted() {
-            return
-        }
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
-        AXIsProcessTrustedWithOptions(options as CFDictionary)
-        if !AXIsProcessTrusted() {
-            DebugLogger.error(code: "E-MAC-PERM-0001", "손쉬운 사용 권한 미허용 — 호버 감지 제한")
-        }
     }
 }

@@ -28,3 +28,16 @@
 "certrust.continue" = "계속";
 "certrust.cancel" = "취소";
 "settings.language.note" = "영문 이름은 Web Island, 별칭은 아이슬렌드 웹";
+"onboarding.title" = "웹 아일랜드 설정";
+"onboarding.status.required" = "손쉬운 사용 권한이 필요합니다";
+"onboarding.status.required.desc" = "노치 주변에서 마우스 호버를 감지하려면 시스템 설정에서 허용해 주세요.";
+"onboarding.status.granted" = "손쉬운 사용 권한이 허용되었습니다";
+"onboarding.status.granted.desc" = "노치 호버 감지가 활성화되었습니다.";
+"onboarding.status.badge.granted" = "허용됨";
+"onboarding.status.badge.required" = "필요함";
+"onboarding.openSettings" = "시스템 설정에서 허용";
+"onboarding.openSettings.help" = "손쉬운 사용 → 손쉬운 사용 권한 페인을 엽니다.";
+"onboarding.settingsOpenFailed" = "시스템 설정을 열지 못했습니다. 손쉬운 사용 → 접근성에서 직접 허용해 주세요.";
+"onboarding.skip" = "나중에";
+"onboarding.start" = "시작하기";
+"onboarding.hint" = "권한 없이도 메뉴바·단축키로 패널을 열 수 있습니다.";

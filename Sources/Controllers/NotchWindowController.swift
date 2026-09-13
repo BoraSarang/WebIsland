@@ -25,6 +25,13 @@ final class NotchWindowController {
         viewModel.$state
             .sink { [weak self] state in
                 self?.layout(for: state, animated: true)
+                if state == .expanded {
+                    // 비활성 앱의 non-activating 패널은 클릭을 받지 못한다.
+                    // 사용자 의도(탭·노치 클릭)로 확장될 때만 키 윈도우로 전환.
+                    DispatchQueue.main.async { [weak self] in
+                        self?.focusPanel()
+                    }
+                }
             }
             .store(in: &cancellables)
         // 설정 화면에서 모드 변경 시 실시간 전환.
@@ -185,9 +192,31 @@ final class NotchWindowController {
     }
 
     func setupMouseTracking() {
+        removeMouseMonitor()
         mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved]) { [weak self] event in
             self?.handleMouseMoved(event)
         }
+    }
+
+    /// 손쉬운 사용 권한이 나중에 허용된 뒤 호버 감지를 재장착한다.
+    func refreshMouseTracking() {
+        DebugLogger.feature("MouseTracking", "모니터 재장착 (권한 허용 후)")
+        setupMouseTracking()
+    }
+
+    private func removeMouseMonitor() {
+        if let monitor = mouseMonitor {
+            NSEvent.removeMonitor(monitor)
+            mouseMonitor = nil
+        }
+    }
+
+    /// 확장 상태에서 패널이 클릭·키 입력을 받도록 앱 활성화 + 키 윈도우 지정.
+    /// `.nonactivatingPanel`은 클릭 시 자동으로 키가 되지 않아 ESC 전까지
+    /// 무반응처럼 보이는 문제를 해결한다.
+    private func focusPanel() {
+        NSApp.activate(ignoringOtherApps: true)
+        notchWindow.makeKeyAndOrderFront(nil)
     }
 
     func handleMouseMoved(_ event: NSEvent) {
