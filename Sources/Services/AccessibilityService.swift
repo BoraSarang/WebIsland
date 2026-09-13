@@ -41,30 +41,34 @@ enum AccessibilityService {
             .eraseToAnyPublisher()
     }
 
+    /// 블록 기반 옵저버 토큰 보관. 버리면 즉시 해제되어 알림을 못 받는다.
+    private static var observerTokens: [NSObjectProtocol] = []
+
     /// 시스템 설정(손쉬운 사용) 변경 시 `com.apple.accessibility.api`가 전파된다.
     /// 알림 직후에도 TCC 반영 지연이 있어 짧게 delay한 뒤 재확인한다.
     private static let distributedChangePublisher: AnyPublisher<Void, Never> = {
         let subject = PassthroughSubject<Void, Never>()
-        DistributedNotificationCenter.default().addObserver(
+        let reschedule = {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                subject.send(())
+            }
+        }
+        observerTokens.append(DistributedNotificationCenter.default().addObserver(
             forName: NSNotification.Name("com.apple.accessibility.api"),
             object: nil,
             queue: .main
         ) { _ in
             DebugLogger.feature("Accessibility", "권한 변경 알림 수신, 재확인 예약")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                subject.send(())
-            }
-        }
-        NSWorkspace.shared.notificationCenter.addObserver(
+            reschedule()
+        })
+        observerTokens.append(NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification,
             object: nil,
             queue: .main
         ) { _ in
             DebugLogger.feature("Accessibility", "접근성 표시 옵션 변경, 재확인 예약")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                subject.send(())
-            }
-        }
+            reschedule()
+        })
         return subject.eraseToAnyPublisher()
     }()
 

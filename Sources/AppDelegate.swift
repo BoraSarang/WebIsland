@@ -259,6 +259,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 defer: false
             )
             window.title = NSLocalizedString("menu.settings", comment: "")
+            // 닫기 후에도 강한 참조 유지 → over-release 댕글링 크래시 방지.
+            window.isReleasedWhenClosed = false
             let hosting = NSHostingView(rootView: SettingsView())
             hosting.sizingOptions = []
             window.contentView = hosting

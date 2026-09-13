@@ -2,6 +2,26 @@
 
 ## [Unreleased] — macos
 
+- [macos] 설정 크래시·분리모드·파비콘 수정:
+  크래시: 설정 창 닫기 후 재오픈 시 EXC_BAD_ACCESS (단순 NSWindow가
+  `isReleasedWhenClosed` 기본값으로 닫힘 → 강한 참조 댕글링).
+  설정·디버그 창에 `isReleasedWhenClosed=false` (온보딩 창과 동일).
+  관련 `E-MAC-*` 없음. unit 27건 통과, lint error 0.
+  분리모드: ① `setupDetachedWindow` 반복 생성으로 플로팅 창 누적 →
+  기존 창 재사용 가드. ② `NotchRootView.windowMode`가 init 시점 고정값이라
+  전환 후에도 노치가 구 모드로 동작 → `NotchViewModel.windowMode`
+  @Published 실시간 구독. ③ 확장 포커스가 노치로만 가던 문제 →
+  분리모드에서는 detached 창을 키로. perf/cache 영향 없음.
+  파비콘: ① 아바타 폴백이 디스크 캐시(TTL 7일)를 오염시켜 일시적 실패가
+  7일간 실제 아이콘을 가림 → 폴백은 메모리만 저장 + 디렉토리
+  `favicons-v2`로 버전범프(구 오염 무효화). ② JS link icon이 CDN 호스트
+  키로 저장·버려지고 로드 후 갱신이 없던 데드 경로 → 페이지 호스트 키 저장
+  + `wiFaviconDidUpdate` 발행, `WebTab.cachedFavicon`(@Transient) 우선 표시.
+  ③ ICO 디코딩 ImageIO 폴백(`decodeImage`, macOS 26 NSImage도 ICO 처리하나
+  안전망 유지). `FaviconServiceTests` 6건 신규. perf/cache 영향 없음.
+  접근성: 분산 알림 옵저버 토큰 미보관(즉시 해제 무음 버그) → 유지.
+  perf/cache 영향 없음.
+
 - [macos] 온보딩 랜딩 수정 + 인증서 프롬프트 근본 수정 (WI-361):
   인증서: didReceive 대리자가 WebKit 기본 신뢰 검증을 대체하므로 유효한
   공개 CA 인증서(예: github.com)에도 프롬프트가 떴던 문제 수정.

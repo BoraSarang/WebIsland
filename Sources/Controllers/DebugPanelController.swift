@@ -24,6 +24,8 @@ final class DebugPanelController {
                 defer: false
             )
             panel.title = "WebIsland Debug"
+            // 설정 창과 동일한 over-release 크래시 방지.
+            panel.isReleasedWhenClosed = false
             panel.level = .floating
             panel.collectionBehavior = [.canJoinAllSpaces]
             let hosting = NSHostingView(rootView: DebugPanelView())

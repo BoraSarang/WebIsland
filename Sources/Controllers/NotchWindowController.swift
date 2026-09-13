@@ -18,6 +18,7 @@ final class NotchWindowController {
 
     init() {
         DebugLogger.feature("NotchWindow", "컨트롤러 초기화")
+        viewModel.windowMode = windowMode
         setupNotchWindow()
         if windowMode == .detached {
             setupDetachedWindow()
@@ -52,9 +53,7 @@ final class NotchWindowController {
     }
 
     deinit {
-        if let monitor = mouseMonitor {
-            NSEvent.removeMonitor(monitor)
-        }
+        mouseMonitor.map(NSEvent.removeMonitor)
         collapseWorkItem?.cancel()
     }
 
@@ -76,17 +75,13 @@ final class NotchWindowController {
         case .idle:
             return NSRect(x: midX - idleW / 2, y: topY - pillHeight, width: idleW, height: pillHeight)
         case .hovered:
-            return NSRect(
-                x: midX - expandedW / 2, y: topY - pillHeight, width: expandedW, height: pillHeight
-            )
+            return NSRect(x: midX - expandedW / 2, y: topY - pillHeight, width: expandedW, height: pillHeight)
         case .expanded:
             if windowMode == .attached {
                 let height = pillHeight + panelHeight
                 return NSRect(x: midX - expandedW / 2, y: topY - height, width: expandedW, height: height)
             }
-            return NSRect(
-                x: midX - expandedW / 2, y: topY - pillHeight, width: expandedW, height: pillHeight
-            )
+            return NSRect(x: midX - expandedW / 2, y: topY - pillHeight, width: expandedW, height: pillHeight)
         }
     }
 
@@ -141,7 +136,6 @@ final class NotchWindowController {
         notchWindow.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 
         let rootView = NotchRootView(
-            windowMode: windowMode,
             onModeChange: { [weak self] mode in
                 self?.switchMode(to: mode)
             },
@@ -158,6 +152,12 @@ final class NotchWindowController {
     }
 
     func setupDetachedWindow() {
+        // 중복 생성 방지: 이미 있으면 앞으로만 내보낸다.
+        // (모드 전환 반복 시 플로팅 창이 쌓이던 버그 수정)
+        if detachedWindow != nil {
+            detachedWindow?.orderFrontRegardless()
+            return
+        }
         let savedFrame = UserDefaults.standard.string(forKey: "detachedFrame")
             .flatMap { NSRectFromString($0) }
             ?? NSRect(x: 500, y: 500, width: 400, height: 500)
@@ -214,9 +214,14 @@ final class NotchWindowController {
     /// 확장 상태에서 패널이 클릭·키 입력을 받도록 앱 활성화 + 키 윈도우 지정.
     /// `.nonactivatingPanel`은 클릭 시 자동으로 키가 되지 않아 ESC 전까지
     /// 무반응처럼 보이는 문제를 해결한다.
+    /// 분리모드에서는 플로팅 창을 키로 만든다 (노치가 아닌 실제 상호작용 창).
     private func focusPanel() {
         NSApp.activate(ignoringOtherApps: true)
-        notchWindow.makeKeyAndOrderFront(nil)
+        if windowMode == .detached, let detached = detachedWindow {
+            detached.makeKeyAndOrderFront(nil)
+        } else if let notch = notchWindow {
+            notch.makeKeyAndOrderFront(nil)
+        }
     }
 
     func handleMouseMoved(_ event: NSEvent) {
@@ -281,6 +286,7 @@ final class NotchWindowController {
     func switchMode(to mode: WindowMode) {
         DebugLogger.feature("WindowMode", "모드 전환: \(mode.rawValue)")
         windowMode = mode
+        viewModel.windowMode = mode
         if mode == .detached {
             setupDetachedWindow()
             detachedWindow?.orderFrontRegardless()
