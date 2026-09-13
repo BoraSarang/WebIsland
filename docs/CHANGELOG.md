@@ -8,6 +8,11 @@
   무음 실패 2곳에 `E-MAC-NET-0002` 추가. `E-MAC-PERM-0001` 폐기
   (마우스 감지는 AX 권한 불필요), PLAN_v0.3 `NET-0003` 정정.
   lint 경고 20→11건. unit 44건 통과, lint error 0. perf/cache 영향 없음.
+- [macos] 리팩토링 Phase 1 (중복 제거):
+  `BrowserChromeView` 추출(노치/분리 24줄 일치 해소, 430→370줄),
+  포트 생략 `HostPort` 통합 + 테스트 3건, `NotchMetrics` 상수화,
+  `HostingViewFactory`, `onModeChange` 삭제·`AppInfo` 구조체화.
+  unit 47건 통과, lint error 0 (경고 11→4건). perf/cache 영향 없음.
 
 - [macos] Final 아이콘 교체 (T-012):
   3D 공식 아이콘 → 플랫 야자섬 Final(Light: 흰 불투명 배경 + 검정섬).

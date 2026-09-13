@@ -27,12 +27,12 @@ final class OnboardingWindowController {
             )
             window.title = NSLocalizedString("onboarding.title", comment: "")
             window.isReleasedWhenClosed = false
-            let hosting = NSHostingView(rootView: OnboardingView(onFinish: { [weak self] in
-                self?.finish()
-            }))
-            hosting.sizingOptions = []
-            hosting.frame = NSRect(x: 0, y: 0, width: 480, height: 400)
-            hosting.autoresizingMask = [.width, .height]
+            let hosting = HostingViewFactory.make(
+                rootView: OnboardingView(onFinish: { [weak self] in
+                    self?.finish()
+                }),
+                size: NSSize(width: 480, height: 400)
+            )
             window.contentView = hosting
             window.center()
             self.window = window

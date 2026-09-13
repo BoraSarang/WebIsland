@@ -88,18 +88,25 @@ struct SettingsView: View {
 
     // MARK: - 앱 정보 푸터 (순수 함수, 단위 테스트 대상)
 
+    struct AppInfo {
+        var name: String
+        var version: String
+        var build: String
+    }
+
     static let repositoryURL = URL(string: "https://github.com/BoraSarang/WebIsland")!
 
     /// 번들 Info.plist에서 읽음 (하드코딩 없음). 키 누락 시 폴백.
-    static func appInfo(bundle: Bundle = .main) -> (name: String, version: String, build: String) {
+    static func appInfo(bundle: Bundle = .main) -> AppInfo {
         appInfo(from: bundle.infoDictionary ?? [:])
     }
 
-    static func appInfo(from info: [String: Any]) -> (name: String, version: String, build: String) {
-        let name = (info["CFBundleName"] as? String) ?? "Web Island"
-        let version = (info["CFBundleShortVersionString"] as? String) ?? "—"
-        let build = (info["CFBundleVersion"] as? String) ?? "—"
-        return (name, version, build)
+    static func appInfo(from info: [String: Any]) -> AppInfo {
+        AppInfo(
+            name: (info["CFBundleName"] as? String) ?? "Web Island",
+            version: (info["CFBundleShortVersionString"] as? String) ?? "—",
+            build: (info["CFBundleVersion"] as? String) ?? "—"
+        )
     }
 
     static func versionLine(bundle: Bundle = .main) -> String {

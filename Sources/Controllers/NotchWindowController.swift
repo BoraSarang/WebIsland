@@ -74,8 +74,9 @@ deinit {
 
     // MARK: - 상태별 윈도우 프레임 (순수 함수 — 단위 테스트 대상)
 
-    static let pillHeight: CGFloat = 40
-    static let panelHeight: CGFloat = 844
+    /// 규격 별칭 (정본은 `NotchMetrics`). 기존 테스트 호환용.
+    static let pillHeight: CGFloat = NotchMetrics.pillHeight
+    static let panelHeight: CGFloat = NotchMetrics.panelHeight
 
     static func frame(
         for state: NotchViewModel.State,
@@ -84,8 +85,9 @@ deinit {
         windowMode: WindowMode,
         notchWidth: CGFloat = 220
     ) -> NSRect {
-        let idleW = notchWidth + 72
-        let expandedW = max(420, notchWidth + 220)
+        let idleW = NotchMetrics.idleWidth(notchWidth: notchWidth)
+        let expandedW = NotchMetrics.expandedWidth(notchWidth: notchWidth)
+        let pillHeight = NotchMetrics.pillHeight
         switch state {
         case .idle:
             return NSRect(x: midX - idleW / 2, y: topY - pillHeight, width: idleW, height: pillHeight)
@@ -93,7 +95,7 @@ deinit {
             return NSRect(x: midX - expandedW / 2, y: topY - pillHeight, width: expandedW, height: pillHeight)
         case .expanded:
             if windowMode == .attached {
-                let height = pillHeight + panelHeight
+                let height = pillHeight + NotchMetrics.panelHeight
                 return NSRect(x: midX - expandedW / 2, y: topY - height, width: expandedW, height: height)
             }
             return NSRect(x: midX - expandedW / 2, y: topY - pillHeight, width: expandedW, height: pillHeight)
@@ -154,18 +156,10 @@ deinit {
         notchWindow.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 
         let rootView = NotchRootView(
-            onModeChange: { [weak self] mode in
-                self?.switchMode(to: mode)
-            },
             viewModel: viewModel,
             tabManager: tabManager
         )
-        hostingView = NSHostingView(rootView: rootView)
-        // NSHostingView 기본값은 윈도우를 콘텐츠 크기에 자동 맞춤.
-        // 오버레이는 수동 크기이므로 자동 맞춤 해제.
-        hostingView?.sizingOptions = []
-        hostingView?.frame = NSRect(origin: .zero, size: idleRect.size)
-        hostingView?.autoresizingMask = [.width, .height]
+        hostingView = HostingViewFactory.make(rootView: rootView, size: idleRect.size)
         notchWindow.contentView = hostingView
         notchWindow.setFrame(idleRect, display: false)
     }
@@ -179,12 +173,12 @@ deinit {
         }
         var savedFrame = UserDefaults.standard.string(forKey: "detachedFrame")
             .flatMap { NSRectFromString($0) }
-            ?? NSRect(x: 500, y: 500, width: 400, height: 844)
+            ?? NSRect(x: 500, y: 500, width: NotchMetrics.detachedWidth, height: NotchMetrics.panelHeight)
         // 옛 400×500 기준 저장값 대비 최소 크기 강제.
         // 브라우저 뷰포트 390×844 + 여백에 맞춰 화면 밖으로는 안 나가게.
         let screen = NSScreen.main?.visibleFrame ?? savedFrame
-        if savedFrame.width < 400 { savedFrame.size.width = 400 }
-        if savedFrame.height < 844 { savedFrame.size.height = 844 }
+        if savedFrame.width < NotchMetrics.detachedWidth { savedFrame.size.width = NotchMetrics.detachedWidth }
+        if savedFrame.height < NotchMetrics.panelHeight { savedFrame.size.height = NotchMetrics.panelHeight }
         if savedFrame.maxY > screen.maxY { savedFrame.origin.y = screen.maxY - savedFrame.height }
         if savedFrame.minY < screen.minY { savedFrame.origin.y = screen.minY }
         let frame = savedFrame
@@ -200,10 +194,10 @@ deinit {
         detachedWindow?.isOpaque = false
         detachedWindow?.hasShadow = true
         detachedWindow?.isMovableByWindowBackground = true
-        let detachedHosting = NSHostingView(rootView: DetachedBrowserView(tabManager: tabManager))
-        detachedHosting.sizingOptions = []
-        detachedHosting.frame = NSRect(origin: .zero, size: frame.size)
-        detachedHosting.autoresizingMask = [.width, .height]
+        let detachedHosting = HostingViewFactory.make(
+            rootView: DetachedBrowserView(tabManager: tabManager),
+            size: frame.size
+        )
         detachedWindow?.contentView = detachedHosting
         detachedWindow?.setFrame(frame, display: false)
         detachedWindow?.orderFrontRegardless()

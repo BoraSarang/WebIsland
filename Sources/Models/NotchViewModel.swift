@@ -18,9 +18,20 @@ final class NotchViewModel: ObservableObject {
     @Published var windowMode: WindowMode = .attached
 
     /// 양옆 가시 영역 36씩 확보.
-    var idleWidth: CGFloat { notchWidth + 72 }
+    var idleWidth: CGFloat { NotchMetrics.idleWidth(notchWidth: notchWidth) }
     /// 양옆 가시 영역 110씩 확보 (최소 420).
-    var expandedWidth: CGFloat { max(420, notchWidth + 220) }
+    var expandedWidth: CGFloat { NotchMetrics.expandedWidth(notchWidth: notchWidth) }
     /// 탭 스트립 중앙 비움 (노치 + 여유 16).
     var centerGap: CGFloat { notchWidth + 16 }
+}
+
+/// 노치 치수 단일 진실. 컨트롤러 프레임 공식·뷰 하드코딩(40/400/844)을 여기로.
+/// (예외: 폴백 팝오버 400×500은 별도 규격이라 그대로.)
+enum NotchMetrics {
+    static let pillHeight: CGFloat = 40
+    static let panelHeight: CGFloat = 844
+    static let detachedWidth: CGFloat = 400
+
+    static func idleWidth(notchWidth: CGFloat) -> CGFloat { notchWidth + 72 }
+    static func expandedWidth(notchWidth: CGFloat) -> CGFloat { max(420, notchWidth + 220) }
 }

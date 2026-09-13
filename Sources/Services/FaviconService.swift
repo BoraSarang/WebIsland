@@ -38,15 +38,9 @@ actor FaviconService {
         return diskDir.appendingPathComponent(safe + ".png")
     }
 
-    /// 포트별 파비콘 캐시 키 (기본 443/80은 호스트만).
+    /// 포트별 파비콘 캐시 키 (기본 443/80은 호스트만). 규칙은 `HostPort` 단일 진실.
     static func cacheKey(for url: URL) -> String {
-        guard let host = url.host else { return "" }
-        guard let port = url.port else { return host }
-        let scheme = url.scheme?.lowercased()
-        if (scheme == "https" && port == 443) || (scheme == "http" && port == 80) {
-            return host
-        }
-        return "\(host):\(port)"
+        HostPort.cacheKey(host: url.host, port: url.port, scheme: url.scheme)
     }
 
     func fetchFavicon(for url: URL) async -> NSImage? {

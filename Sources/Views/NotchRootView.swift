@@ -3,8 +3,6 @@ import SwiftUI
 import WebKit
 
 struct NotchRootView: View {
-    var onModeChange: (WindowMode) -> Void
-
     @ObservedObject var viewModel: NotchViewModel
     @ObservedObject var tabManager: TabManager
 
@@ -74,7 +72,7 @@ struct NotchRootView: View {
         .padding(.horizontal, state == .idle ? 6 : 16)
         .frame(
             width: state == .idle ? viewModel.idleWidth : viewModel.expandedWidth,
-            height: 40
+            height: NotchMetrics.pillHeight
         )
         // 외곽 모양·그림자는 바깥 단일 컨테이너가 담당 (이음매 무단차).
         // pill은 위만 둥글게(컨테이너 클립에 맡김) 아래는 패널과 직선으로 만남.
@@ -88,36 +86,9 @@ struct NotchRootView: View {
     // MARK: - Browser Panel (창 가득 × 844, 블랙 융합)
 
     func browserPanel(for tab: WebTab) -> some View {
-        let webView = tabManager.webView(for: tab)
-        return VStack(spacing: 0) {
-            WebProgressBar(webView: webView)
-            ToolbarView(
-                webView: webView,
-                url: tab.url,
-                isNewTabPage: tab.isNewTabPage,
-                onNavigate: { tabManager.navigateActive(to: $0) },
-                onAddTab: { tabManager.addTab() },
-                onOpenSettings: {
-                    (NSApp.delegate as? AppDelegate)?.openSettings()
-                },
-                onDismiss: {
-                    (NSApp.delegate as? AppDelegate)?.notchWindowController?.dismissPanel()
-                }
-            )
-            DownloadTrayView()
-            WebContainerView(
-                webView: webView,
-                url: tab.url,
-                isNewTabPage: tab.isNewTabPage,
-                tab: tab,
-                onURLDidChange: { tabManager.syncURL(tab, $0) },
-                onOpenNewWindow: { tabManager.addTab(urlString: $0) }
-            )
-                .id(tab.id)
-                .frame(width: viewModel.expandedWidth - 10)
-        }
-        .frame(width: viewModel.expandedWidth, height: 844)
-        .background(Color.black)
+        BrowserChromeView(tabManager: tabManager, tab: tab, webWidth: viewModel.expandedWidth - 10)
+            .frame(width: viewModel.expandedWidth, height: NotchMetrics.panelHeight)
+            .background(Color.black)
     }
 }
 
@@ -280,15 +251,9 @@ struct ToolbarView: View {
     @State private var pageTitle = ""
     @FocusState private var addressFocused: Bool
 
-    /// 호스트 + 비기본 포트 표시 (기본 80/443은 생략).
+    /// 호스트 + 비기본 포트 표시 (기본 80/443은 생략). 규칙은 `HostPort` 단일 진실.
     private var displayHostPort: String {
-        guard let host = url.host else { return url.absoluteString }
-        guard let port = url.port else { return host }
-        let scheme = url.scheme?.lowercased()
-        if (scheme == "https" && port == 443) || (scheme == "http" && port == 80) {
-            return host
-        }
-        return "\(host):\(port)"
+        HostPort.display(host: url.host, port: url.port, scheme: url.scheme, fallback: url.absoluteString)
     }
 
     var body: some View {
@@ -392,34 +357,10 @@ struct DetachedBrowserView: View {
     var body: some View {
         VStack(spacing: 0) {
             if let tab = tabManager.activeTab {
-                let webView = tabManager.webView(for: tab)
-                WebProgressBar(webView: webView)
-                ToolbarView(
-                    webView: webView,
-                    url: tab.url,
-                    isNewTabPage: tab.isNewTabPage,
-                    onNavigate: { tabManager.navigateActive(to: $0) },
-                    onAddTab: { tabManager.addTab() },
-                    onOpenSettings: {
-                        (NSApp.delegate as? AppDelegate)?.openSettings()
-                    },
-                    onDismiss: {
-                        (NSApp.delegate as? AppDelegate)?.notchWindowController?.dismissPanel()
-                    }
-                )
-                DownloadTrayView()
-                WebContainerView(
-                    webView: webView,
-                    url: tab.url,
-                    isNewTabPage: tab.isNewTabPage,
-                    tab: tab,
-                    onURLDidChange: { tabManager.syncURL(tab, $0) },
-                    onOpenNewWindow: { tabManager.addTab(urlString: $0) }
-                )
-                    .id(tab.id)
+                BrowserChromeView(tabManager: tabManager, tab: tab)
             }
         }
-        .frame(width: 400, height: 844)
+        .frame(width: NotchMetrics.detachedWidth, height: NotchMetrics.panelHeight)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .onExitCommand {

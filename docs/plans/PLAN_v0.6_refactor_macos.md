@@ -1,6 +1,6 @@
 # PLAN v0.6 — 전체 리팩토링 (P0+P1 + E2E)
 
-> 플랫폼: macos / 상태: Phase 0 완료, Phase 1 대기 / 기준: 3방향 정밀 분석 (2026-09-14)
+> 플랫폼: macos / 상태: Phase 1 완료, Phase 2 대기 / 기준: 3방향 정밀 분석 (2026-09-14)
 
 ## 0. 확정 범위
 
@@ -22,13 +22,14 @@
   `swiftlint:disable:next`로 원복. 교훈: `--fix` 후 반드시 빌드.
 - 게이트: unit 44건 통과, lint error 0, BUILD SUCCEEDED.
 
-## 2. Phase 1 — 중복 제거 (다음)
+## 2. Phase 1 — 중복 제거 (완료)
 
-- 1-1 `BrowserChromeView` 추출 (24줄 일치, `file_length` 해소).
-- 1-2 포트 생략 `HostPort` 통합 + 테스트.
-- 1-3 `NotchMetrics` 상수화 + `frame()` 단일 진실.
-- 1-4 `makeHostingView()` 헬퍼.
-- 1-5 `onModeChange` 삭제·`AppInfo` 구조체화.
+- 1-1 `BrowserChromeView` 추출 → 별도 파일 (24줄 일치 해소, 430→370줄).
+- 1-2 포트 생략 `HostPort` 통합 (`WebTab`·`Toolbar`·`Favicon`) + `HostPortTests` 3건.
+- 1-3 `NotchMetrics` 상수화 (40/400/844) + `frame()` 단일 진실. 폴백 팝오버 400×500은 별도 규격 유지.
+- 1-4 `HostingViewFactory` (노치·분리·디버그·온보딩). 설정 창은 패턴 상이로 제외.
+- 1-5 `onModeChange` 삭제·`AppInfo` 구조체화 (`large_tuple` 해소).
+- 게이트: unit 47건 통과, lint error 0 (경고 11→4건, 잔여는 Phase 2 구조분).
 
 ## 3. Phase 2 — 책임 분리 (이후)
 

@@ -28,10 +28,10 @@ final class DebugPanelController {
             panel.isReleasedWhenClosed = false
             panel.level = .floating
             panel.collectionBehavior = [.canJoinAllSpaces]
-            let hosting = NSHostingView(rootView: DebugPanelView())
-            hosting.sizingOptions = []
-            hosting.frame = NSRect(x: 0, y: 0, width: 560, height: 420)
-            hosting.autoresizingMask = [.width, .height]
+            let hosting = HostingViewFactory.make(
+                rootView: DebugPanelView(),
+                size: NSSize(width: 560, height: 420)
+            )
             panel.contentView = hosting
             panel.setFrame(NSRect(x: 0, y: 0, width: 560, height: 420), display: false)
             panel.center()
@@ -53,8 +53,8 @@ struct DebugPanelView: View {
     }()
 
     var body: some View {
-        // revision 구독용 (entries는 스냅샷 반환).
-        // swiftlint:disable:next redundant_discardable_let — ViewBuilder에서 선언문 필요
+        // revision 구독용 (entries는 스냅샷 반환). ViewBuilder라 선언문 필요.
+        // swiftlint:disable:next redundant_discardable_let
         let _ = store.revision
         VStack(spacing: 8) {
             HStack {
