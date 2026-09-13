@@ -4,7 +4,7 @@ import SwiftUI
 /// 노치·분리 윈도우 생성 공장 (NotchWindowController type_body 분리의 윈도우 담당).
 /// Controller는 만든 윈도우 보유 + 상태 전환만 한다.
 enum NotchWindowFactory {
-    static let detachedFrameKey = "detachedFrame"
+    /// 분리 프레임 저장 키 (정본은 `AppSettingsKeys.detachedFrame`).
 
     /// 노치 패널 윈도우 생성 (투명 borderless + 루트뷰 배선).
     static func makeNotchWindow(
@@ -37,7 +37,7 @@ enum NotchWindowFactory {
     /// 분리 플로팅 윈도우 생성 (저장 프레임 복원 + 최소 크기 강제 + 이동 저장).
     static func makeDetachedWindow(tabManager: TabManager) -> PanelWindow {
         let screen = NSScreen.main?.visibleFrame
-        let saved = UserDefaults.standard.string(forKey: detachedFrameKey)
+        let saved = UserDefaults.standard.string(forKey: AppSettingsKeys.detachedFrame)
         let frame = detachedFrame(saved: saved, screen: screen)
 
         let window = PanelWindow(
@@ -62,7 +62,7 @@ enum NotchWindowFactory {
             object: window,
             queue: .main
         ) { _ in
-            UserDefaults.standard.set(NSStringFromRect(window.frame), forKey: detachedFrameKey)
+            UserDefaults.standard.set(NSStringFromRect(window.frame), forKey: AppSettingsKeys.detachedFrame)
         }
         return window
     }

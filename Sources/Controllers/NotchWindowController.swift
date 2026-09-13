@@ -17,7 +17,7 @@ final class NotchWindowController {
     private let hoverTracker = HoverTracker()
     private var keyDownMonitor: Any?
 
-    @AppStorage("windowMode") var windowMode: WindowMode = .attached
+    @AppStorage(AppSettingsKeys.windowMode) var windowMode: WindowMode = .attached
 
     init() {
         DebugLogger.feature("NotchWindow", "컨트롤러 초기화")

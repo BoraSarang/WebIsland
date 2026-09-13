@@ -85,7 +85,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(settings)
 
         let dockTitle = NSLocalizedString(
-            UserDefaults.standard.bool(forKey: "showInDock")
+            UserDefaults.standard.bool(forKey: AppSettingsKeys.showInDock)
                 ? "menu.hideInDock" : "menu.showInDock",
             comment: ""
         )
@@ -148,19 +148,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Dock / Launch / HotKey
 
     func applyDockVisibility() {
-        let show = UserDefaults.standard.bool(forKey: "showInDock")
+        let show = UserDefaults.standard.bool(forKey: AppSettingsKeys.showInDock)
         NSApp.setActivationPolicy(show ? .regular : .accessory)
         DebugLogger.info("Dock 표시: \(show)")
     }
 
     @objc func toggleDock() {
-        let current = UserDefaults.standard.bool(forKey: "showInDock")
-        UserDefaults.standard.set(!current, forKey: "showInDock")
+        let current = UserDefaults.standard.bool(forKey: AppSettingsKeys.showInDock)
+        UserDefaults.standard.set(!current, forKey: AppSettingsKeys.showInDock)
         applyDockVisibility()
     }
 
     func syncLaunchAtLogin() {
-        LoginItemService.isEnabled = UserDefaults.standard.bool(forKey: "launchAtLogin")
+        LoginItemService.isEnabled = UserDefaults.standard.bool(forKey: AppSettingsKeys.launchAtLogin)
     }
 
     func setupHotKey() {

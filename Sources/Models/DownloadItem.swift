@@ -23,5 +23,4 @@ struct DownloadItem: Identifiable, Equatable {
     var receivedBytes: Int64 = 0
     var speedBytesPerSecond: Double = 0
     var remainingSeconds: Double?
-    var elapsed: TimeInterval = 0
 }

@@ -26,6 +26,11 @@
   파일 I/O → `DownloadFileStore` (위임 유지로 호출부 무변경),
   윈도우 생성 → `NotchWindowFactory` (분리 프레임 clamp 순수함수).
   신규 테스트 5건. unit 63건 통과, lint error 0 + 경고 0. perf/cache 영향 없음.
+- [macos] P2 잔여 정리 (T-015/PLAN_v0.8):
+  `moveTab`·`elapsed` 삭제, 설정 키 `AppSettingsKeys` 상수화 (10곳),
+  다운로드 폴링 `Timer` → `Task.sleep` 루프 (`tick` 유지).
+  WebTab 미사용 3종은 SwiftData 스키마 위험으로 유지.
+  unit 63건 통과, lint error 0 + 경고 0. perf/cache 영향 없음.
 
 - [macos] Final 아이콘 교체 (T-012):
   3D 공식 아이콘 → 플랫 야자섬 Final(Light: 흰 불투명 배경 + 검정섬).

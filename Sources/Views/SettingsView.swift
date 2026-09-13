@@ -2,9 +2,9 @@ import KeyboardShortcuts
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("showInDock") var showInDock: Bool = false
-    @AppStorage("windowMode") var windowMode: String = WindowMode.attached.rawValue
-    @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
+    @AppStorage(AppSettingsKeys.showInDock) var showInDock: Bool = false
+    @AppStorage(AppSettingsKeys.windowMode) var windowMode: String = WindowMode.attached.rawValue
+    @AppStorage(AppSettingsKeys.launchAtLogin) var launchAtLogin: Bool = false
 
     var body: some View {
         Form {

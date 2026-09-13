@@ -138,16 +138,6 @@ final class TabManager: ObservableObject {
         save()
     }
 
-    func moveTab(from source: IndexSet, to destination: Int) {
-        var ordered = tabs.sorted { $0.order < $1.order }
-        ordered.move(fromOffsets: source, toOffset: destination)
-        for (index, tab) in ordered.enumerated() {
-            tab.order = index
-        }
-        tabs = ordered
-        save()
-    }
-
     func navigateActive(to urlString: String) {
         guard let url = validatedURL(urlString), let tab = activeTab else {
             DebugLogger.error(code: "E-MAC-VALID-0001", "잘못된 주소: \(urlString)")

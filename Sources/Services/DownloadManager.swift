@@ -19,7 +19,6 @@ final class DownloadManager: ObservableObject {
     private var downloadsByID: [UUID: WKDownload] = [:]
     private var observationsByID: [UUID: NSKeyValueObservation] = [:]
     private var destinationsByID: [UUID: URL] = [:]
-    private var startedAtByID: [UUID: TimeInterval] = [:]
     private var lastSampleByID: [UUID: (time: TimeInterval, bytes: Int64)] = [:]
     private var scheduledRemovals: [UUID: Task<Void, Never>] = [:]
     /// KVO 원시 샘플 버퍼 (0.5s 폴링에서 일괄 반영 — 초당 수십 회 재렌더 방지).
@@ -29,7 +28,7 @@ final class DownloadManager: ObservableObject {
         var total: Int64
     }
     private var progressBufferByID: [UUID: ProgressSample] = [:]
-    private var pollTimer: Timer?
+    private var pollTask: Task<Void, Never>?
 
     private init() {}
 
@@ -40,7 +39,6 @@ final class DownloadManager: ObservableObject {
         let item = DownloadItem(filename: filename)
         items.insert(item, at: 0)
         downloadsByID[item.id] = download
-        startedAtByID[item.id] = ProcessInfo.processInfo.systemUptime
 
         observationsByID[item.id] = download.progress.observe(
             \.fractionCompleted,
@@ -58,7 +56,7 @@ final class DownloadManager: ObservableObject {
         }
 
         DebugLogger.feature("Download", "트레이 등록: \(filename)")
-        ensurePollTimer()
+        startPolling()
         trimIfNeeded()
     }
 
@@ -184,7 +182,6 @@ final class DownloadManager: ObservableObject {
         observationsByID[id]?.invalidate()
         observationsByID[id] = nil
         destinationsByID[id] = nil
-        startedAtByID[id] = nil
         lastSampleByID[id] = nil
         progressBufferByID[id] = nil
     }
@@ -202,7 +199,7 @@ final class DownloadManager: ObservableObject {
         items.removeAll { $0.id == id }
         scheduledRemovals[id]?.cancel()
         scheduledRemovals[id] = nil
-        if activeItems.isEmpty { stopPollTimer() }
+        if activeItems.isEmpty { stopPolling() }
     }
 
     /// 완료·실패·취소 항목을 트레이에서 즉시 제거 (닫기 버튼).
@@ -235,18 +232,20 @@ final class DownloadManager: ObservableObject {
         }
     }
 
-    // MARK: - 0.5s 폴링 (TubeKeep startQueuePolling 방식)
+    // MARK: - 0.5s 폴링 (Task sleep 루프 — RunLoop Timer 대체)
 
-    private func ensurePollTimer() {
-        guard pollTimer == nil else { return }
-        pollTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+    private func startPolling() {
+        guard pollTask == nil else { return }
+        pollTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 500_000_000)
+                guard !Task.isCancelled else { return }
                 self?.tick()
             }
         }
     }
 
-    /// 버퍼된 진행 반영 + 경과 갱신을 한 번에 (초당 2회 재렌더로 고정).
+    /// 버퍼된 진행 반영 (초당 2회 재렌더로 고정).
     private func tick() {
         let now = ProcessInfo.processInfo.systemUptime
         var hasActive = false
@@ -279,16 +278,13 @@ final class DownloadManager: ObservableObject {
                     : nil
                 progressBufferByID[id] = nil
             }
-            if let start = startedAtByID[id] {
-                items[index].elapsed = now - start
-            }
         }
-        if !hasActive { stopPollTimer() }
+        if !hasActive { stopPolling() }
     }
 
-    private func stopPollTimer() {
-        pollTimer?.invalidate()
-        pollTimer = nil
+    private func stopPolling() {
+        pollTask?.cancel()
+        pollTask = nil
     }
 
     // MARK: - 저장 경로
