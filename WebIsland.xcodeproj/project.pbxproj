@@ -14,7 +14,6 @@
 		1D00DAF748D438AE1BE17A7E /* WebCapabilitiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C32A186833CA11BFCC0464 /* WebCapabilitiesTests.swift */; };
 		28C2B0755B4BDAF84401ECF7 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = DEC22D5A7429429E2ED10828 /* KeyboardShortcuts */; };
 		3818771F8B1681165C7EF9C3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEDF3CB24DDEBB570D7A9BD /* AppDelegate.swift */; };
-		418F158A7D910DE23C58BF9E /* DetachedPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261289E41064766F2173E1D3 /* DetachedPanelController.swift */; };
 		53E82C87B272BD166CDCD8A9 /* DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82AF28B66B614A854E5F698D /* DebugLogger.swift */; };
 		61632756C26C3356E9EA64DE /* NotchLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A74A403B7529AB525D61186 /* NotchLayoutTests.swift */; };
 		651065DD4F4D9B13C17F0B08 /* OnboardingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2148AB9DE2CA7A19133E11 /* OnboardingWindowController.swift */; };
@@ -37,6 +36,7 @@
 		C3E97ADC00384DE0059144B4 /* TabManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EDC2A77A5776F22BB3F3565 /* TabManagerTests.swift */; };
 		C6996992397C8F00E333EC15 /* AccessibilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E8E709EF51879F25D060E /* AccessibilityService.swift */; };
 		CED20B2522C48AA442E3384E /* LoginItemService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBFA71BCA4EAA8B1F3625C30 /* LoginItemService.swift */; };
+		FC04F6B9668BA2D6E9D2B969 /* WebTabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7895D6703DE9B3EBC5B410 /* WebTabTests.swift */; };
 		B02DCFADDCD94393AB002875 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EDBA35E4747F4125BBB367E1 /* Localizable.strings */; };
 		4E9D5606E58344EA88ED35AF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9E11315151004BE0B81D684C /* InfoPlist.strings */; };
 		9D818B380A6645BFB9C63F0F /* WebIsland.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1419D6AAF034B2686124369 /* WebIsland.xcassets */; };
@@ -60,7 +60,6 @@
 		1A74A403B7529AB525D61186 /* NotchLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchLayoutTests.swift; sourceTree = "<group>"; };
 		1CF01B84C984290752582F2A /* WebIsland.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WebIsland.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E0D460E308B352A6D8D7B99 /* NotchDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchDetector.swift; sourceTree = "<group>"; };
-		261289E41064766F2173E1D3 /* DetachedPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetachedPanelController.swift; sourceTree = "<group>"; };
 		2A9A71ECA91C23BBD9DD1A33 /* NotchWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchWindowController.swift; sourceTree = "<group>"; };
 		2EDC2A77A5776F22BB3F3565 /* TabManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManagerTests.swift; sourceTree = "<group>"; };
 		35B9755ABBBA28B9C5084DDC /* TabManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManager.swift; sourceTree = "<group>"; };
@@ -71,6 +70,7 @@
 		6D2148AB9DE2CA7A19133E11 /* OnboardingWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingWindowController.swift; sourceTree = "<group>"; };
 		78BF0F7F3098CB3676CCF668 /* LogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStore.swift; sourceTree = "<group>"; };
 		7C92484338D53FF7E1FA9722 /* CertTrustTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertTrustTests.swift; sourceTree = "<group>"; };
+		7D7895D6703DE9B3EBC5B410 /* WebTabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebTabTests.swift; sourceTree = "<group>"; };
 		82AF28B66B614A854E5F698D /* DebugLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLogger.swift; sourceTree = "<group>"; };
 		8A29EF4A186C60A9C1091245 /* DebugPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugPanelController.swift; sourceTree = "<group>"; };
 		8CEDF3CB24DDEBB570D7A9BD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -134,6 +134,7 @@
 				1A74A403B7529AB525D61186 /* NotchLayoutTests.swift */,
 				2EDC2A77A5776F22BB3F3565 /* TabManagerTests.swift */,
 				99C32A186833CA11BFCC0464 /* WebCapabilitiesTests.swift */,
+				7D7895D6703DE9B3EBC5B410 /* WebTabTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -190,7 +191,6 @@
 			isa = PBXGroup;
 			children = (
 				8A29EF4A186C60A9C1091245 /* DebugPanelController.swift */,
-				261289E41064766F2173E1D3 /* DetachedPanelController.swift */,
 				2A9A71ECA91C23BBD9DD1A33 /* NotchWindowController.swift */,
 				6D2148AB9DE2CA7A19133E11 /* OnboardingWindowController.swift */,
 				0703D4A2CA847804FB44EA6E /* PanelWindow.swift */,
@@ -321,7 +321,6 @@
 				85822876646CCD86C5F3F10F /* CertTrustService.swift in Sources */,
 				53E82C87B272BD166CDCD8A9 /* DebugLogger.swift in Sources */,
 				ACC20B6192A4BF6B34355C65 /* DebugPanelController.swift in Sources */,
-				418F158A7D910DE23C58BF9E /* DetachedPanelController.swift in Sources */,
 				7DF9DDEDAA5844D3A98D7CF7 /* FaviconService.swift in Sources */,
 				8D1645EA0E88BE7E7DBACDE5 /* LogStore.swift in Sources */,
 				CED20B2522C48AA442E3384E /* LoginItemService.swift in Sources */,
@@ -351,6 +350,7 @@
 				61632756C26C3356E9EA64DE /* NotchLayoutTests.swift in Sources */,
 				C3E97ADC00384DE0059144B4 /* TabManagerTests.swift in Sources */,
 				1D00DAF748D438AE1BE17A7E /* WebCapabilitiesTests.swift in Sources */,
+				FC04F6B9668BA2D6E9D2B969 /* WebTabTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

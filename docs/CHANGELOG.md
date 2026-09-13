@@ -2,6 +2,14 @@
 
 ## [Unreleased] — macos
 
+- [macos] 탭매니저 공유·동일호스트 구분 (분리모드 불일치·동일 파비콘):
+  원인 확정 (DB 실측): 3개 탭이 전부 `10.36.188.13`(8443/3000/3001) —
+  같은 호스트=같은 파비콘은 정상. 분리모드는 TabManager 3중복
+  (노치/분리/팝오버 각 @StateObject, activeTabID·풀 독립)이 원인.
+  `NotchWindowController.tabManager` 단일 소유 + 3곳 주입
+  (노치/분리/폴백), 미사용 `DetachedPanelController` 삭제.
+  동일 호스트 구분: `WebTab.portBadge`(443/80 생략) 미니 배지 + 툴팁 전체 URL.
+  `WebTabTests` 3건 신규. unit 30건 통과, lint error 0. perf/cache 영향 없음.
 - [macos] 설정 크래시·분리모드·파비콘 수정:
   크래시: 설정 창 닫기 후 재오픈 시 EXC_BAD_ACCESS (단순 NSWindow가
   `isReleasedWhenClosed` 기본값으로 닫힘 → 강한 참조 댕글링).

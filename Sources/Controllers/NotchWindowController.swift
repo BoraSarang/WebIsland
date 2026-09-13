@@ -8,6 +8,9 @@ final class NotchWindowController {
     var hostingView: NSHostingView<NotchRootView>?
 
     let viewModel = NotchViewModel()
+    /// 단일 공유 탭 모델. 노치·분리·폴백이 같은 선택/탐색을 본다.
+    /// (각 뷰가 TabManager를 따로 만들던 구조에서 분리모드 불일치 발생)
+    let tabManager: TabManager!
     private var cancellables = Set<AnyCancellable>()
 
     private var mouseMonitor: Any?
@@ -18,6 +21,7 @@ final class NotchWindowController {
 
     init() {
         DebugLogger.feature("NotchWindow", "컨트롤러 초기화")
+        tabManager = MainActor.assumeIsolated { TabManager() }
         viewModel.windowMode = windowMode
         setupNotchWindow()
         if windowMode == .detached {
@@ -139,7 +143,8 @@ final class NotchWindowController {
             onModeChange: { [weak self] mode in
                 self?.switchMode(to: mode)
             },
-            viewModel: viewModel
+            viewModel: viewModel,
+            tabManager: tabManager
         )
         hostingView = NSHostingView(rootView: rootView)
         // NSHostingView 기본값은 윈도우를 콘텐츠 크기에 자동 맞춤.
@@ -173,12 +178,13 @@ final class NotchWindowController {
         detachedWindow?.isOpaque = false
         detachedWindow?.hasShadow = true
         detachedWindow?.isMovableByWindowBackground = true
-        let detachedHosting = NSHostingView(rootView: DetachedBrowserView())
+        let detachedHosting = NSHostingView(rootView: DetachedBrowserView(tabManager: tabManager))
         detachedHosting.sizingOptions = []
         detachedHosting.frame = NSRect(origin: .zero, size: savedFrame.size)
         detachedHosting.autoresizingMask = [.width, .height]
         detachedWindow?.contentView = detachedHosting
         detachedWindow?.setFrame(savedFrame, display: false)
+        detachedWindow?.orderFrontRegardless()
 
         NotificationCenter.default.addObserver(
             forName: NSWindow.didMoveNotification,
@@ -263,10 +269,7 @@ final class NotchWindowController {
     func toggle() {
         notchWindow.orderFrontRegardless()
         if windowMode == .detached {
-            if detachedWindow == nil {
-                setupDetachedWindow()
-            }
-            detachedWindow?.orderFrontRegardless()
+            setupDetachedWindow()
         }
         if viewModel.state == .expanded {
             viewModel.state = .hovered

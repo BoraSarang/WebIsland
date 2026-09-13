@@ -6,7 +6,7 @@ struct NotchRootView: View {
     var onModeChange: (WindowMode) -> Void
 
     @ObservedObject var viewModel: NotchViewModel
-    @StateObject private var tabManager = TabManager()
+    @ObservedObject var tabManager: TabManager
 
     var state: NotchViewModel.State { viewModel.state }
 
@@ -164,7 +164,7 @@ struct TabStripView: View {
                 KeyEquivalent(Character("\(index + 1)")),
                 modifiers: .command
             )
-            .help("\(tab.host) (⌘\(index + 1))")
+            .help("\(tab.urlString) (⌘\(index + 1))")
     }
 }
 
@@ -208,6 +208,19 @@ struct FaviconView: View {
                 Circle()
                     .fill(Color.accentColor)
                     .frame(width: 6, height: 6)
+            }
+        }
+        .overlay(alignment: .bottomLeading) {
+            // 동일 호스트 탭 구분용 포트 배지 (핀 표시와 겹치면 핀 우선).
+            if let badge = tab.portBadge, !tab.isPinned, !tab.isNewTabPage {
+                Text(badge)
+                    .font(.system(size: 7, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 3)
+                    .padding(.vertical, 1)
+                    .background(Color.black.opacity(0.65))
+                    .clipShape(Capsule())
+                    .offset(x: -5, y: 5)
             }
         }
         .task(id: tab.urlString) {
@@ -325,7 +338,7 @@ struct ToolbarView: View {
 }
 
 struct DetachedBrowserView: View {
-    @StateObject private var tabManager = TabManager()
+    @ObservedObject var tabManager: TabManager
 
     var body: some View {
         VStack(spacing: 0) {

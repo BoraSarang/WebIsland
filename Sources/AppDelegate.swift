@@ -205,7 +205,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let popover = NSPopover()
         popover.behavior = .transient
         popover.contentSize = NSSize(width: 400, height: 500)
-        popover.contentViewController = NSHostingController(rootView: DetachedBrowserView())
+        let browserView = DetachedBrowserView(tabManager: notchWindowController.tabManager)
+        popover.contentViewController = NSHostingController(rootView: browserView)
         popover.show(
             relativeTo: statusItem.button?.bounds ?? .zero,
             of: statusItem.button ?? NSView(),
