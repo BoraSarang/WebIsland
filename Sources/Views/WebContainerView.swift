@@ -100,14 +100,18 @@ struct WebContainerView: NSViewRepresentable {
             // (예: github.com)는 프롬프트 없이 수락하고, 실제 검증에 실패한
             // 인증서만 사용자 확인으로 보낸다.
             // SecTrustEvaluate*는 네트워크(중간 CA/해지) 접근이 가능하므로
-            // 메인 런루프 대신 백그라운드에서 비동기 검증한다.
-            SecTrustEvaluateAsyncWithError(trust, .global(qos: .userInitiated)) { _, trusted, _ in
-                if trusted {
-                    DebugLogger.feature("CertTrust", "시스템 신뢰 통과: \(host)")
-                    completionHandler(.useCredential, URLCredential(trust: trust))
-                } else {
-                    DebugLogger.feature("CertTrust", "신뢰 검증 실패, 사용자 확인: \(host)")
-                    DispatchQueue.main.async {
+            // 메인 런루프 대신 백그라운드에서 동기 검증한다.
+            // (SecTrustEvaluateAsyncWithError는 메인 호출 시 내부 큐 assert로
+            // 크래시하므로 사용하지 않는다.)
+            DispatchQueue.global(qos: .userInitiated).async {
+                var evalError: CFError?
+                let trusted = SecTrustEvaluateWithError(trust, &evalError)
+                DispatchQueue.main.async {
+                    if trusted {
+                        DebugLogger.feature("CertTrust", "시스템 신뢰 통과: \(host)")
+                        completionHandler(.useCredential, URLCredential(trust: trust))
+                    } else {
+                        DebugLogger.feature("CertTrust", "신뢰 검증 실패, 사용자 확인: \(host)")
                         self.askToTrust(host: host, trust: trust, completionHandler: completionHandler)
                     }
                 }
