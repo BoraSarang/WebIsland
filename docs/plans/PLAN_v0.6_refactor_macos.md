@@ -44,12 +44,19 @@
 - 잔여 경고 2건 (`DownloadManager`·`NotchWindowController` type_body)은
   파일 I/O·윈도우 공장 분리 시 해소 → 후속으로 이월.
 
-## 4. Phase 3 — 테스트 + E2E
+## 4. Phase 3 — 테스트 + E2E (완료)
 
-- 단위: 풀 경계·상태머신·`clampedFrame`·`LogStore` 링버퍼.
-- E2E: 트레이·새창·ESC·분리모드 (headless, workers≤2).
+- 단위: `LogStoreTests` 4건 (히트율·링버퍼 상한·카운터). 총 58건 통과.
+- E2E: `scripts/e2e-smoke.sh` 신규 (TC-SMOKE-001 프로세스·시작로그 + 002 단축키,
+  AX·포커스 없이 프로세스·로그·defaults로만 확인, 실행 유지형이라 재시작 겸함).
+  `build_and_run.sh e2e macos smoke` 배선. 4/4 통과.
+- 잔여 경고 2건 (`DownloadManager`·`NotchWindowController` type_body)은
+  파일 I/O·윈도우 공장 분리 시 해소 → 후속으로 이월.
 
 ## 5. 브랜치·커밋
 
 - 브랜치: `feat/macos-trust-tabs-download` (현행)
 - Phase당 1커밋. Phase 0: `fix(macos): P0 안정화 (로그 단절·크래시·무음실패·lint)`
+  Phase 1: `refactor(macos): Phase 1 중복 제거 (크롬·포트·치수·호스팅)`
+  Phase 2: `refactor(macos): Phase 2 책임 분리 (인증서·호버·메뉴·풀)`
+  Phase 3: `refactor(macos): Phase 3 테스트+E2E (LogStore 4건·smoke 4/4)`

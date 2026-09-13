@@ -37,8 +37,12 @@ case "$cmd" in
     fi
     ;;
   e2e)
-    echo "[안내] E2E는 사용자 승인 후 별도 수행합니다. (headless 우선, 병렬 ≤2)"
-    exit 2
+    if [ "$SUITE" = "smoke" ]; then
+      "$ROOT/scripts/e2e-smoke.sh"
+    else
+      echo "[안내] E2E full은 수동(TC-MAN) + 승인 후 수행합니다. (headless 우선, 병렬 ≤2)"
+      exit 2
+    fi
     ;;
   *)
     usage

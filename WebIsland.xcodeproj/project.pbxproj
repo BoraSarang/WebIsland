@@ -15,6 +15,7 @@
 		2609374985F75FE814916429 /* HoverTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169FF5663F938F91AB2FC7CC /* HoverTracker.swift */; };
 		28C2B0755B4BDAF84401ECF7 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = DEC22D5A7429429E2ED10828 /* KeyboardShortcuts */; };
 		3818771F8B1681165C7EF9C3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEDF3CB24DDEBB570D7A9BD /* AppDelegate.swift */; };
+		496877BDCB126664F05C3430 /* LogStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DA1F68F27220334C2604E7 /* LogStoreTests.swift */; };
 		53E82C87B272BD166CDCD8A9 /* DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82AF28B66B614A854E5F698D /* DebugLogger.swift */; };
 		59CA032B2BA8ECFA9639C214 /* CertTrustHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F29BD37809A89779BCAB42D9 /* CertTrustHandler.swift */; };
 		61632756C26C3356E9EA64DE /* NotchLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A74A403B7529AB525D61186 /* NotchLayoutTests.swift */; };
@@ -70,6 +71,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		04DA1F68F27220334C2604E7 /* LogStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStoreTests.swift; sourceTree = "<group>"; };
 		0703D4A2CA847804FB44EA6E /* PanelWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelWindow.swift; sourceTree = "<group>"; };
 		095F8C6FB4367FE81AB1419D /* HostingViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostingViewFactory.swift; sourceTree = "<group>"; };
 		169FF5663F938F91AB2FC7CC /* HoverTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverTracker.swift; sourceTree = "<group>"; };
@@ -170,6 +172,7 @@
 				A9AAC467225BE285D612A054 /* FaviconServiceTests.swift */,
 				7BC7F851D3A8B8DA2A9D66E6 /* HostPortTests.swift */,
 				C77E74030D98EC9845DBAA4B /* HoverTrackerTests.swift */,
+				04DA1F68F27220334C2604E7 /* LogStoreTests.swift */,
 				4D8D81C2E2ED626A3F0574F3 /* NotchDetectorTests.swift */,
 				1A74A403B7529AB525D61186 /* NotchLayoutTests.swift */,
 				5FF2CBA64733707702DF19E5 /* SettingsViewTests.swift */,
@@ -412,6 +415,7 @@
 				BF8E150B457D2C7C4CEB5805 /* FaviconServiceTests.swift in Sources */,
 				6FCC63AA9E5117AC33EDECB4 /* HostPortTests.swift in Sources */,
 				673F230BD813423C922B8F00 /* HoverTrackerTests.swift in Sources */,
+				496877BDCB126664F05C3430 /* LogStoreTests.swift in Sources */,
 				7F7D3A19A2D0E90B29EB6ACA /* NotchDetectorTests.swift in Sources */,
 				61632756C26C3356E9EA64DE /* NotchLayoutTests.swift in Sources */,
 				7BD50864FAD13FA75A9F25F1 /* SettingsViewTests.swift in Sources */,

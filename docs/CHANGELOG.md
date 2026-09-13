@@ -18,6 +18,9 @@
   `SettingsWindowFactory`·`WebViewPool` 추출 + `windowMode` 일원화.
   테스트 7건 신규 (`DownloadRouting` 3·`HoverTracker` 4).
   unit 54건 통과, lint error 0 (경고 4→2건). perf/cache 영향 없음.
+- [macos] 리팩토링 Phase 3 (테스트 + E2E):
+  `LogStoreTests` 4건, E2E smoke 자동화 (`e2e-smoke.sh`, TC-001/002 4/4 통과).
+  unit 58건 통과, lint error 0 (경고 2건). perf/cache 영향 없음.
 
 - [macos] Final 아이콘 교체 (T-012):
   3D 공식 아이콘 → 플랫 야자섬 Final(Light: 흰 불투명 배경 + 검정섬).
