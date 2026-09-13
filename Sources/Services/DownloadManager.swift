@@ -329,13 +329,13 @@ final class DownloadManager: ObservableObject {
         let base = (suggested as NSString).deletingPathExtension
         let ext = (suggested as NSString).pathExtension
         var candidate = directory.appendingPathComponent(suggested)
-        var n = 2
+        var suffix = 2
         while fm.fileExists(atPath: candidate.path) {
             let name = ext.isEmpty
-                ? "\(base) (\(n))"
-                : "\(base) (\(n)).\(ext)"
+                ? "\(base) (\(suffix))"
+                : "\(base) (\(suffix)).\(ext)"
             candidate = directory.appendingPathComponent(name)
-            n += 1
+            suffix += 1
         }
         return candidate
     }

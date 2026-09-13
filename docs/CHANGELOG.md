@@ -2,6 +2,25 @@
 
 ## [Unreleased] — macos
 
+- [macos] 새창 열기 지원 (`target=_blank`·`window.open` → 새 탭):
+  원인: `WKUIDelegate` 미설정이라 새창 요청이 조용히 버려짐.
+  `WebContainerView`에 `uiDelegate` 배선 + `createWebViewWith` 구현 —
+  http(s)만 `addTab(urlString:)`으로 새 탭 오픈, 팝업 웹뷰 미생성(중복 로드 없음).
+  주소 없는 팝업(`window.open('')`·blob)은 무시 + 로그, `window.close()`는 로그만.
+  노치 패널·분리모드 둘 다 배선. `WebContainerViewTests` 3건 신규.
+  unit 44건 통과, lint error 0. perf/cache 영향 없음.
+- [macos] 다운로드 트레이 완성형 + 노치 융합 + 설정 푸터 (T-011/PLAN_v0.4):
+  트레이: 1줄 `파일명 + % 우측`, 2줄 `용량 · 속도 · 남은` 우측 정렬 한 줄 통합(A안) —
+  고정폭 컬럼 삭제라 중간 텀·들쑥날쑥 제거, ✕는 두 줄 세로중앙.
+  임시파일: `decideDestination` → `<최종이름>.download` + 완료 시 rename,
+  취소/실패 시 삭제(best-effort), 중복은 `이름 (n).확장자` 회피.
+  노치: pill + 패널 단일 검정 컨테이너(배경·외곽·그림자 1개) + 패널 창 가득(440),
+  웹뷰 430으로 확대.
+  설정 하단: 번들에서 읽은 앱 이름·버전 + GitHub 링크(공개 저장소 `BoraSarang/WebIsland`).
+  ESC: 로컬 키 모니터(keyCode 53, 텍스트 편집 중 통과) + `PanelWindow.cancelOperation`.
+  닫기: 툴바 ✕ + 분리모드 메뉴바 토글(열려 있으면 닫기). 제목: 옴니박스 사이트 제목 표시.
+  관련 `E-MAC-NET-0002` 유지. unit 44건 통과, lint error 0. perf/cache 영향 없음.
+
 - [macos] 실행 바이너리 이중화 해소 + 클릭 계측:
   `~/Applications` 복사본이 구 빌드(00:01)라 수정 사항 없이 동작·크래시
   재현되던 문제 → 현행 빌드로 교체, 양쪽 dylib 지문 일치 확인.

@@ -25,12 +25,12 @@ struct DownloadTrayView: View {
 
     /// 1분 미만은 초만, 이상은 분·초 (42 → "42초", 185 → "3분 5초").
     static func remainingClockText(_ seconds: Double) -> String {
-        let s = max(0, Int(seconds))
-        let m = s / 60
-        let r = s % 60
-        if m == 0 { return "\(r)초" }
-        if r == 0 { return "\(m)분" }
-        return "\(m)분 \(r)초"
+        let totalSec = max(0, Int(seconds))
+        let min = totalSec / 60
+        let sec = totalSec % 60
+        if min == 0 { return "\(sec)초" }
+        if sec == 0 { return "\(min)분" }
+        return "\(min)분 \(sec)초"
     }
 
     /// 종류별 칸 표시용 값 (고정 폭 셀에 들어가 자릿수 변화가 레이아웃에 영향 없음).
