@@ -34,7 +34,7 @@ struct DownloadTrayView: View {
     }
 
     /// 종류별 칸 표시용 값 (고정 폭 셀에 들어가 자릿수 변화가 레이아웃에 영향 없음).
-    static func sizeText(for item: DownloadManager.DownloadItem) -> String {
+    static func sizeText(for item: DownloadItem) -> String {
         if item.totalBytes > 0 {
             return "\(byteText(item.receivedBytes)) / \(byteText(item.totalBytes))"
         } else if item.receivedBytes > 0 {
@@ -43,28 +43,28 @@ struct DownloadTrayView: View {
         return "—"
     }
 
-    static func speedText(for item: DownloadManager.DownloadItem) -> String {
+    static func speedText(for item: DownloadItem) -> String {
         guard item.speedBytesPerSecond > 0 else { return "—" }
         return "\(byteText(Int64(item.speedBytesPerSecond)))/s"
     }
 
-    static func remainingText(for item: DownloadManager.DownloadItem) -> String {
+    static func remainingText(for item: DownloadItem) -> String {
         let value = item.remainingSeconds.map(remainingClockText) ?? "--"
         return String(format: NSLocalizedString("download.remaining", comment: ""), value)
     }
 
-    static func percentText(for item: DownloadManager.DownloadItem) -> String {
+    static func percentText(for item: DownloadItem) -> String {
         "\(Int(item.progress * 100))%"
     }
 
     /// 2줄 통합 메타 한 줄: "용량 · 속도 · 남은" (우측 정렬용, %는 1줄 우측).
-    static func metaLine(for item: DownloadManager.DownloadItem) -> String {
+    static func metaLine(for item: DownloadItem) -> String {
         "\(sizeText(for: item)) · \(speedText(for: item)) · \(remainingText(for: item))"
     }
 }
 
 private struct DownloadRow: View {
-    let item: DownloadManager.DownloadItem
+    let item: DownloadItem
 
     var body: some View {
         if item.state == .downloading {

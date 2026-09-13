@@ -63,14 +63,14 @@ final class DownloadManagerTests: XCTestCase {
     }
 
     func testMetaPlaceholders() {
-        let fresh = DownloadManager.DownloadItem(filename: "a.dmg")
+        let fresh = DownloadItem(filename: "a.dmg")
         XCTAssertEqual(DownloadTrayView.sizeText(for: fresh), "—")
         XCTAssertEqual(DownloadTrayView.speedText(for: fresh), "—")
     }
 
     /// A안 통합 메타: 1줄 "%" + 2줄 "용량 · 속도 · 남은" 3칸 고정.
     func testMetaLineOrder() {
-        var item = DownloadManager.DownloadItem(filename: "VSCode-darwin-arm64.dmg")
+        var item = DownloadItem(filename: "VSCode-darwin-arm64.dmg")
         item.progress = 0.36
         item.receivedBytes = 103 * 1_000_000
         item.totalBytes = 283_300_000
@@ -86,7 +86,7 @@ final class DownloadManagerTests: XCTestCase {
     }
 
     func testMetaLinePlaceholders() {
-        let fresh = DownloadManager.DownloadItem(filename: "a.dmg")
+        let fresh = DownloadItem(filename: "a.dmg")
         XCTAssertEqual(DownloadTrayView.percentText(for: fresh), "0%")
         let line = DownloadTrayView.metaLine(for: fresh)
         XCTAssertTrue(line.hasPrefix("— · — · "), "초기값 플레이스홀더: \(line)")

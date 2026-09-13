@@ -150,26 +150,13 @@ final class NotchWindowController {
             notchWidth: viewModel.notchWidth
         )
 
-        notchWindow = PanelWindow(
-            contentRect: idleRect,
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        notchWindow.level = .screenSaver // above menu bar
-        notchWindow.backgroundColor = .clear
-        notchWindow.isOpaque = false
-        notchWindow.hasShadow = false
-        notchWindow.isMovable = false
-        notchWindow.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-
-        let rootView = NotchRootView(
+        let made = NotchWindowFactory.makeNotchWindow(
+            idleRect: idleRect,
             viewModel: viewModel,
             tabManager: tabManager
         )
-        hostingView = HostingViewFactory.make(rootView: rootView, size: idleRect.size)
-        notchWindow.contentView = hostingView
-        notchWindow.setFrame(idleRect, display: false)
+        notchWindow = made.window
+        hostingView = made.hosting
     }
 
     func setupDetachedWindow() {
@@ -179,46 +166,8 @@ final class NotchWindowController {
             detachedWindow?.orderFrontRegardless()
             return
         }
-        var savedFrame = UserDefaults.standard.string(forKey: "detachedFrame")
-            .flatMap { NSRectFromString($0) }
-            ?? NSRect(x: 500, y: 500, width: NotchMetrics.detachedWidth, height: NotchMetrics.panelHeight)
-        // 옛 400×500 기준 저장값 대비 최소 크기 강제.
-        // 브라우저 뷰포트 390×844 + 여백에 맞춰 화면 밖으로는 안 나가게.
-        let screen = NSScreen.main?.visibleFrame ?? savedFrame
-        if savedFrame.width < NotchMetrics.detachedWidth { savedFrame.size.width = NotchMetrics.detachedWidth }
-        if savedFrame.height < NotchMetrics.panelHeight { savedFrame.size.height = NotchMetrics.panelHeight }
-        if savedFrame.maxY > screen.maxY { savedFrame.origin.y = screen.maxY - savedFrame.height }
-        if savedFrame.minY < screen.minY { savedFrame.origin.y = screen.minY }
-        let frame = savedFrame
-
-        detachedWindow = PanelWindow(
-            contentRect: frame,
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        detachedWindow?.level = .floating
-        detachedWindow?.backgroundColor = .clear
-        detachedWindow?.isOpaque = false
-        detachedWindow?.hasShadow = true
-        detachedWindow?.isMovableByWindowBackground = true
-        let detachedHosting = HostingViewFactory.make(
-            rootView: DetachedBrowserView(tabManager: tabManager),
-            size: frame.size
-        )
-        detachedWindow?.contentView = detachedHosting
-        detachedWindow?.setFrame(frame, display: false)
+        detachedWindow = NotchWindowFactory.makeDetachedWindow(tabManager: tabManager)
         detachedWindow?.orderFrontRegardless()
-
-        NotificationCenter.default.addObserver(
-            forName: NSWindow.didMoveNotification,
-            object: detachedWindow,
-            queue: .main
-        ) { [weak self] _ in
-            if let panelFrame = self?.detachedWindow?.frame {
-                UserDefaults.standard.set(NSStringFromRect(panelFrame), forKey: "detachedFrame")
-            }
-        }
     }
 
     func setupMouseTracking() {

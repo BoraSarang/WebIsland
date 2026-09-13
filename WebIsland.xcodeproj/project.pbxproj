@@ -55,6 +55,11 @@
 		FB989524A9F4F837B754FDFD /* DownloadManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A83417580B31E696B9033F81 /* DownloadManagerTests.swift */; };
 		FC04F6B9668BA2D6E9D2B969 /* WebTabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7895D6703DE9B3EBC5B410 /* WebTabTests.swift */; };
 		FF5861C9BCFD5BFCD0E43322 /* HostPort.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6F039E70A6C2C8238D82D3 /* HostPort.swift */; };
+		C4EF51E25AEC4AF788BB1438 /* DownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806EC75D527E49118D858B9A /* DownloadItem.swift */; };
+		98DCA7F0D9034D58A7CA16E7 /* DownloadFileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629447A1F98741A486EED03C /* DownloadFileStore.swift */; };
+		960134BF7BA24F6BBCAED3BD /* NotchWindowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A15143AF3B04A61B1478ED7 /* NotchWindowFactory.swift */; };
+		00E1D81F5FEC43AA876A715B /* DownloadFileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167B7CF211AB4E9088E41C56 /* DownloadFileStoreTests.swift */; };
+		82B01EDEB8424AC794FFC0A5 /* NotchWindowFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07DBB24494048C48283B64F /* NotchWindowFactoryTests.swift */; };
 		B02DCFADDCD94393AB002875 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EDBA35E4747F4125BBB367E1 /* Localizable.strings */; };
 		4E9D5606E58344EA88ED35AF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9E11315151004BE0B81D684C /* InfoPlist.strings */; };
 		9D818B380A6645BFB9C63F0F /* WebIsland.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1419D6AAF034B2686124369 /* WebIsland.xcassets */; };
@@ -120,6 +125,11 @@
 		F6D8A066A7786C24028485EA /* WebContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebContainerView.swift; sourceTree = "<group>"; };
 		F8AE3910A7746DD0771601F1 /* NotchRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchRootView.swift; sourceTree = "<group>"; };
 		FB924FD701CFAEB57982087E /* DownloadRouting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadRouting.swift; sourceTree = "<group>"; };
+		806EC75D527E49118D858B9A /* DownloadItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadItem.swift; sourceTree = "<group>"; };
+		629447A1F98741A486EED03C /* DownloadFileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFileStore.swift; sourceTree = "<group>"; };
+		7A15143AF3B04A61B1478ED7 /* NotchWindowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchWindowFactory.swift; sourceTree = "<group>"; };
+		167B7CF211AB4E9088E41C56 /* DownloadFileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFileStoreTests.swift; sourceTree = "<group>"; };
+		D07DBB24494048C48283B64F /* NotchWindowFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchWindowFactoryTests.swift; sourceTree = "<group>"; };
 		A3C1F83D1A7548A48D9DD696 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8A3FF384FEA54EBD8B12AAD0 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = Resources/ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		BA5705DCB7E44AFC9700380E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -167,6 +177,7 @@
 			isa = PBXGroup;
 			children = (
 				7C92484338D53FF7E1FA9722 /* CertTrustTests.swift */,
+				167B7CF211AB4E9088E41C56 /* DownloadFileStoreTests.swift */,
 				A83417580B31E696B9033F81 /* DownloadManagerTests.swift */,
 				BF5D1DF90ECD247FA7614EE4 /* DownloadRoutingTests.swift */,
 				A9AAC467225BE285D612A054 /* FaviconServiceTests.swift */,
@@ -175,6 +186,7 @@
 				04DA1F68F27220334C2604E7 /* LogStoreTests.swift */,
 				4D8D81C2E2ED626A3F0574F3 /* NotchDetectorTests.swift */,
 				1A74A403B7529AB525D61186 /* NotchLayoutTests.swift */,
+				D07DBB24494048C48283B64F /* NotchWindowFactoryTests.swift */,
 				5FF2CBA64733707702DF19E5 /* SettingsViewTests.swift */,
 				2EDC2A77A5776F22BB3F3565 /* TabManagerTests.swift */,
 				99C32A186833CA11BFCC0464 /* WebCapabilitiesTests.swift */,
@@ -191,6 +203,7 @@
 				F29BD37809A89779BCAB42D9 /* CertTrustHandler.swift */,
 				18B732E23A93BF3DAC30EF6B /* CertTrustService.swift */,
 				82AF28B66B614A854E5F698D /* DebugLogger.swift */,
+				629447A1F98741A486EED03C /* DownloadFileStore.swift */,
 				19638EB7C2F4934B054B6FBE /* DownloadManager.swift */,
 				FB924FD701CFAEB57982087E /* DownloadRouting.swift */,
 				B2FB3D1D41E0DE2DF971BDB5 /* FaviconService.swift */,
@@ -245,6 +258,7 @@
 				169FF5663F938F91AB2FC7CC /* HoverTracker.swift */,
 				C04EC3BCC30326F28124A459 /* MenuBuilder.swift */,
 				2A9A71ECA91C23BBD9DD1A33 /* NotchWindowController.swift */,
+				7A15143AF3B04A61B1478ED7 /* NotchWindowFactory.swift */,
 				6D2148AB9DE2CA7A19133E11 /* OnboardingWindowController.swift */,
 				0703D4A2CA847804FB44EA6E /* PanelWindow.swift */,
 				BB220E5E49D856FA0DC7AF97 /* SettingsWindowFactory.swift */,
@@ -255,6 +269,7 @@
 		F12F1C90C09FF0C447EFF0AF /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				806EC75D527E49118D858B9A /* DownloadItem.swift */,
 				F2FA449318C0F626DE642A16 /* NotchViewModel.swift */,
 				A739C971DD1B96211AA6C4C4 /* WebTab.swift */,
 			);
@@ -378,6 +393,8 @@
 				53E82C87B272BD166CDCD8A9 /* DebugLogger.swift in Sources */,
 				ACC20B6192A4BF6B34355C65 /* DebugPanelController.swift in Sources */,
 				D7A7A73B31C2BEE552745CB7 /* DownloadManager.swift in Sources */,
+				C4EF51E25AEC4AF788BB1438 /* DownloadItem.swift in Sources */,
+				98DCA7F0D9034D58A7CA16E7 /* DownloadFileStore.swift in Sources */,
 				DA46A2F88A864A51B4C73697 /* DownloadRouting.swift in Sources */,
 				672DE0CA9CE23794BAAAAEC6 /* DownloadTrayView.swift in Sources */,
 				7DF9DDEDAA5844D3A98D7CF7 /* FaviconService.swift in Sources */,
@@ -391,6 +408,7 @@
 				6960D13B8A1FB3BA08C7A4AE /* NotchRootView.swift in Sources */,
 				88B16D23CD30E305D375AF9E /* NotchViewModel.swift in Sources */,
 				09F88320328B94626A4CBCCB /* NotchWindowController.swift in Sources */,
+				960134BF7BA24F6BBCAED3BD /* NotchWindowFactory.swift in Sources */,
 				773A21EB09D616D5D526B8EB /* OnboardingView.swift in Sources */,
 				651065DD4F4D9B13C17F0B08 /* OnboardingWindowController.swift in Sources */,
 				B65AC51A72CEBA0DF59BAFEE /* PanelWindow.swift in Sources */,
@@ -411,6 +429,7 @@
 			files = (
 				A745C455A5E5F6AA973C0980 /* CertTrustTests.swift in Sources */,
 				FB989524A9F4F837B754FDFD /* DownloadManagerTests.swift in Sources */,
+				00E1D81F5FEC43AA876A715B /* DownloadFileStoreTests.swift in Sources */,
 				C1DAF94B689AB890CCB13291 /* DownloadRoutingTests.swift in Sources */,
 				BF8E150B457D2C7C4CEB5805 /* FaviconServiceTests.swift in Sources */,
 				6FCC63AA9E5117AC33EDECB4 /* HostPortTests.swift in Sources */,
@@ -418,6 +437,7 @@
 				496877BDCB126664F05C3430 /* LogStoreTests.swift in Sources */,
 				7F7D3A19A2D0E90B29EB6ACA /* NotchDetectorTests.swift in Sources */,
 				61632756C26C3356E9EA64DE /* NotchLayoutTests.swift in Sources */,
+				82B01EDEB8424AC794FFC0A5 /* NotchWindowFactoryTests.swift in Sources */,
 				7BD50864FAD13FA75A9F25F1 /* SettingsViewTests.swift in Sources */,
 				C3E97ADC00384DE0059144B4 /* TabManagerTests.swift in Sources */,
 				1D00DAF748D438AE1BE17A7E /* WebCapabilitiesTests.swift in Sources */,

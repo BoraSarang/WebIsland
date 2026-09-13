@@ -8,30 +8,6 @@ import WebKit
 final class DownloadManager: ObservableObject {
     static let shared = DownloadManager()
 
-    enum DownloadState: String {
-        case downloading, finished, cancelled, failed
-    }
-
-    struct DownloadItem: Identifiable, Equatable {
-        let id = UUID()
-        /// 진행 중 표시용 최종 파일명 (임시 확장자 미포함).
-        var filename: String
-        /// `.download` 임시 경로 (decideDestination 결정).
-        var temporaryURL: URL?
-        /// 완료 후 최종 저장 경로 (Finder 보기용).
-        var destinationURL: URL?
-        var progress: Double = 0
-        var state: DownloadState = .downloading
-        var errorText: String?
-
-        // 진행 메타
-        var totalBytes: Int64 = 0
-        var receivedBytes: Int64 = 0
-        var speedBytesPerSecond: Double = 0
-        var remainingSeconds: Double?
-        var elapsed: TimeInterval = 0
-    }
-
     /// 트레이 표시 목록 (다운로딩 + 8초 내 완료/실패/취소). 최신순.
     @Published private(set) var items: [DownloadItem] = []
 
@@ -200,14 +176,7 @@ final class DownloadManager: ObservableObject {
     private func removeTemporaryFile(id: UUID) {
         guard let temp = destinationsByID[id] ?? items.first(where: { $0.id == id })?.temporaryURL
         else { return }
-        if FileManager.default.fileExists(atPath: temp.path) {
-            do {
-                try FileManager.default.removeItem(at: temp)
-                DebugLogger.feature("Download", "임시 파일 삭제: \(temp.lastPathComponent)")
-            } catch {
-                DebugLogger.info("임시 파일 삭제 실패: \(temp.lastPathComponent) (\(error.localizedDescription))")
-            }
-        }
+        DownloadFileStore.removeIfExists(at: temp)
     }
 
     private func cleanup(id: UUID) {
@@ -325,19 +294,8 @@ final class DownloadManager: ObservableObject {
     // MARK: - 저장 경로
 
     /// 주어진 디렉토리에 중복 파일명이 있으면 `이름 (n).확장자`로 회피.
+    /// 실체는 `DownloadFileStore` (호출부 호환용 위임).
     func uniqueDestination(in directory: URL, suggested: String) -> URL {
-        let fileManager = FileManager.default
-        let base = (suggested as NSString).deletingPathExtension
-        let ext = (suggested as NSString).pathExtension
-        var candidate = directory.appendingPathComponent(suggested)
-        var suffix = 2
-        while fileManager.fileExists(atPath: candidate.path) {
-            let name = ext.isEmpty
-                ? "\(base) (\(suffix))"
-                : "\(base) (\(suffix)).\(ext)"
-            candidate = directory.appendingPathComponent(name)
-            suffix += 1
-        }
-        return candidate
+        DownloadFileStore.uniqueDestination(in: directory, suggested: suggested)
     }
 }

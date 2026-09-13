@@ -21,6 +21,11 @@
 - [macos] 리팩토링 Phase 3 (테스트 + E2E):
   `LogStoreTests` 4건, E2E smoke 자동화 (`e2e-smoke.sh`, TC-001/002 4/4 통과).
   unit 58건 통과, lint error 0 (경고 2건). perf/cache 영향 없음.
+- [macos] 잔여 type_body 경고 해소 (T-014/PLAN_v0.7):
+  `DownloadState`·`DownloadItem` → `Models/DownloadItem.swift`,
+  파일 I/O → `DownloadFileStore` (위임 유지로 호출부 무변경),
+  윈도우 생성 → `NotchWindowFactory` (분리 프레임 clamp 순수함수).
+  신규 테스트 5건. unit 63건 통과, lint error 0 + 경고 0. perf/cache 영향 없음.
 
 - [macos] Final 아이콘 교체 (T-012):
   3D 공식 아이콘 → 플랫 야자섬 Final(Light: 흰 불투명 배경 + 검정섬).
