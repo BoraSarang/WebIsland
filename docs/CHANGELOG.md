@@ -2,6 +2,28 @@
 
 ## [Unreleased] — macos
 
+- [macos] 온보딩 랜딩 수정 + 인증서 프롬프트 근본 수정 (WI-361):
+  인증서: didReceive 대리자가 WebKit 기본 신뢰 검증을 대체하므로 유효한
+  공개 CA 인증서(예: github.com)에도 프롬프트가 떴던 문제 수정.
+  `SecTrustEvaluateAsyncWithError` 게이트 추가로 시스템 신뢰 통과 시
+  프롬프트 없이 수락, 실제 검증 실패 시에만 사용자 확인.
+  남은 프롬프트는 `alert.window.level=.screenSaver`로 팝오버 뒤 가림 해소.
+  관련 `E-MAC-NET-*` 없음(기존 코드 재사용). unit 21건 통과, lint error 0.
+  온보딩: 1초 폴링 + `com.apple.accessibility.api` 분산 알림(0.2s 지연 재확인)
+  + `didBecomeActive` 병합으로 실행 중 허용 즉시 감지.
+  랜딩 창 480×360→400(하단 짤림 해소), 권한 카드 우측 상태 배지
+  (`onboarding.status.badge.granted/required` ko/en) 추가.
+  미감지 원인 확정: 설정 ON 표시는 이전 바이너리(TCC는 ad-hoc 서명 CDHash
+  바인딩, 빌드마다 변경) — 현재 바이너리 기준으로 OFF→ON 재토글 필요.
+  perf/cache 영향 없음.
+- [macos] 창 미표시 원인 확정·수정 (WI-mui 검증):
+  `PanelWindow`가 NSWindow 기반인데 `.nonactivatingPanel`(0x80) styleMask 사용 →
+  AppKit가 거부 (`NSWindow does not support nonactivating panel styleMask 0x80`).
+  `NSPanel` 서브클래스로 전환 + `hidesOnDeactivate=false` (오버레이 상주).
+  검증 시 소유자명 필터 교훈: CGWindowList의 owner는 CFBundleDisplayName
+  ("웹 아일랜드")이라 "WebIsland" 필터로 0개 오인 — "웹 아일랜드"로 매칭.
+  실행 검증: idle pill 292×40 @ (754,0), layer=1000(screenSaver), onscreen=true.
+  unit 21건 통과, lint error 0. perf/cache 영향 없음.
 - [macos] 인증서·탭·다운로드·분리모드·아이콘 (WI-mui, 검증 대기):
   사설IP 자동 신뢰 + 예외 기억 (`CertTrustService`, `certrust.*` 키),
   `NSAllowsLocalNetworking`, 탭 전환 `.id()` 교체 + 파비콘탭 펼치기

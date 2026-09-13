@@ -1,5 +1,6 @@
 import Cocoa
 import Combine
+import Security
 import SwiftUI
 import WebKit
 
@@ -94,7 +95,23 @@ struct WebContainerView: NSViewRepresentable {
                 completionHandler(.useCredential, URLCredential(trust: trust))
                 return
             }
-            askToTrust(host: host, trust: trust, completionHandler: completionHandler)
+            // WKNavigationDelegate로 didReceive를 구현하면 WebKit의 기본 신뢰
+            // 검증이 대리자 책임으로 대체된다. 시스템 체인에 유효한 인증서
+            // (예: github.com)는 프롬프트 없이 수락하고, 실제 검증에 실패한
+            // 인증서만 사용자 확인으로 보낸다.
+            // SecTrustEvaluate*는 네트워크(중간 CA/해지) 접근이 가능하므로
+            // 메인 런루프 대신 백그라운드에서 비동기 검증한다.
+            SecTrustEvaluateAsyncWithError(trust, .global(qos: .userInitiated)) { _, trusted, _ in
+                if trusted {
+                    DebugLogger.feature("CertTrust", "시스템 신뢰 통과: \(host)")
+                    completionHandler(.useCredential, URLCredential(trust: trust))
+                } else {
+                    DebugLogger.feature("CertTrust", "신뢰 검증 실패, 사용자 확인: \(host)")
+                    DispatchQueue.main.async {
+                        self.askToTrust(host: host, trust: trust, completionHandler: completionHandler)
+                    }
+                }
+            }
         }
 
         private func askToTrust(
@@ -110,6 +127,9 @@ struct WebContainerView: NSViewRepresentable {
             )
             alert.addButton(withTitle: NSLocalizedString("certrust.continue", comment: ""))
             alert.addButton(withTitle: NSLocalizedString("certrust.cancel", comment: ""))
+            // 노치 패널은 `.screenSaver` 레벨이라 기본 알림은 뒤에 가려진다.
+            // 경고를 팝오버 위로 올려 사용자 확인이 가능하도록 한다.
+            alert.window.level = .screenSaver
             if alert.runModal() == .alertFirstButtonReturn {
                 CertTrustService.remember(host: host)
                 DebugLogger.feature("CertTrust", "사용자 확인 신뢰: \(host)")
