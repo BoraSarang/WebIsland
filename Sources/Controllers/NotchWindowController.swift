@@ -225,8 +225,10 @@ final class NotchWindowController {
         NSApp.activate(ignoringOtherApps: true)
         if windowMode == .detached, let detached = detachedWindow {
             detached.makeKeyAndOrderFront(nil)
+            DebugLogger.feature("Panel", "포커스: detached (active=\(NSApp.isActive))")
         } else if let notch = notchWindow {
             notch.makeKeyAndOrderFront(nil)
+            DebugLogger.feature("Panel", "포커스: notch (active=\(NSApp.isActive))")
         }
     }
 

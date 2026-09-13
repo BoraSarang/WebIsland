@@ -50,6 +50,7 @@ struct NotchRootView: View {
                     activeID: tabManager.activeTabID,
                     gapWidth: viewModel.centerGap,
                     onSelect: {
+                        DebugLogger.feature("NotchRoot", "탭 제스처 수신: \($0.urlString)")
                         tabManager.selectTab($0)
                         viewModel.state = .expanded
                     },

@@ -124,6 +124,7 @@ final class TabManager: ObservableObject {
     }
 
     func selectTab(_ tab: WebTab) {
+        DebugLogger.feature("TabManager.selectTab", "\(tab.urlString) (이전: \(activeTabID?.uuidString.prefix(8) ?? "없음"))")
         activeTabID = tab.id
     }
 
