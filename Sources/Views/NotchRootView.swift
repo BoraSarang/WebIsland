@@ -1,8 +1,8 @@
+import Combine
 import SwiftUI
 import WebKit
 
 struct NotchRootView: View {
-    var windowMode: WindowMode
     var onModeChange: (WindowMode) -> Void
 
     @ObservedObject var viewModel: NotchViewModel
@@ -13,7 +13,7 @@ struct NotchRootView: View {
     var body: some View {
         VStack(spacing: 0) {
             notchPill
-            if state == .expanded && windowMode == .attached,
+            if state == .expanded && viewModel.windowMode == .attached,
                let tab = tabManager.activeTab
             {
                 browserPanel(for: tab)
@@ -94,7 +94,7 @@ struct NotchRootView: View {
                     (NSApp.delegate as? AppDelegate)?.openSettings()
                 }
             )
-            WebContainerView(webView: webView, url: tab.url, isNewTabPage: tab.isNewTabPage)
+            WebContainerView(webView: webView, url: tab.url, isNewTabPage: tab.isNewTabPage, tab: tab)
                 .id(tab.id)
                 .frame(width: 390)
         }
@@ -180,7 +180,12 @@ struct FaviconView: View {
                     .fill(Color.white.opacity(0.15))
                     .frame(width: 28, height: 28)
             }
-            if let icon {
+            if let fav = tab.cachedFavicon {
+                Image(nsImage: fav)
+                    .resizable()
+                    .frame(width: 16, height: 16)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            } else if let icon {
                 Image(nsImage: icon)
                     .resizable()
                     .frame(width: 16, height: 16)
@@ -206,7 +211,21 @@ struct FaviconView: View {
             }
         }
         .task(id: tab.urlString) {
-            icon = await FaviconService.shared.fetchFavicon(for: tab.url)
+            if let img = await FaviconService.shared.fetchFavicon(for: tab.url) {
+                icon = img
+                tab.cachedFavicon = img
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .wiFaviconDidUpdate)) { note in
+            guard tab.cachedFavicon == nil,
+                  (note.userInfo?["host"] as? String) == tab.host
+            else { return }
+            Task { @MainActor in
+                if let img = await FaviconService.shared.fetchFavicon(for: tab.url) {
+                    icon = img
+                    tab.cachedFavicon = img
+                }
+            }
         }
     }
 }
@@ -323,7 +342,7 @@ struct DetachedBrowserView: View {
                         (NSApp.delegate as? AppDelegate)?.openSettings()
                     }
                 )
-                WebContainerView(webView: webView, url: tab.url, isNewTabPage: tab.isNewTabPage)
+                WebContainerView(webView: webView, url: tab.url, isNewTabPage: tab.isNewTabPage, tab: tab)
                     .id(tab.id)
             }
         }

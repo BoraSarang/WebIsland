@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import SwiftData
 
@@ -10,6 +11,9 @@ final class WebTab: Identifiable {
     var isPinned: Bool
     var faviconURLString: String?
     var createdAt: Date
+    /// 표시용 파비콘 (영속 제외). 로드 완료 시 Coordinator가 세팅하면
+    /// @Observable 경유로 표시 중인 뷰가 즉시 갱신된다.
+    @Transient var cachedFavicon: NSImage?
     
     init(url: URL, order: Int) {
         self.id = UUID()

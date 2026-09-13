@@ -33,6 +33,7 @@
 		AB05A5028BA834F3EE6CD821 /* AvatarGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3DE6C10CD10900A569B8DA0 /* AvatarGenerator.swift */; };
 		ACC20B6192A4BF6B34355C65 /* DebugPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A29EF4A186C60A9C1091245 /* DebugPanelController.swift */; };
 		B65AC51A72CEBA0DF59BAFEE /* PanelWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0703D4A2CA847804FB44EA6E /* PanelWindow.swift */; };
+		BF8E150B457D2C7C4CEB5805 /* FaviconServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9AAC467225BE285D612A054 /* FaviconServiceTests.swift */; };
 		C3E97ADC00384DE0059144B4 /* TabManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EDC2A77A5776F22BB3F3565 /* TabManagerTests.swift */; };
 		C6996992397C8F00E333EC15 /* AccessibilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E8E709EF51879F25D060E /* AccessibilityService.swift */; };
 		CED20B2522C48AA442E3384E /* LoginItemService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBFA71BCA4EAA8B1F3625C30 /* LoginItemService.swift */; };
@@ -75,6 +76,7 @@
 		8CEDF3CB24DDEBB570D7A9BD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		99C32A186833CA11BFCC0464 /* WebCapabilitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebCapabilitiesTests.swift; sourceTree = "<group>"; };
 		A739C971DD1B96211AA6C4C4 /* WebTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebTab.swift; sourceTree = "<group>"; };
+		A9AAC467225BE285D612A054 /* FaviconServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconServiceTests.swift; sourceTree = "<group>"; };
 		B2FB3D1D41E0DE2DF971BDB5 /* FaviconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconService.swift; sourceTree = "<group>"; };
 		C3DE6C10CD10900A569B8DA0 /* AvatarGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarGenerator.swift; sourceTree = "<group>"; };
 		DBFA71BCA4EAA8B1F3625C30 /* LoginItemService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemService.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				7C92484338D53FF7E1FA9722 /* CertTrustTests.swift */,
+				A9AAC467225BE285D612A054 /* FaviconServiceTests.swift */,
 				4D8D81C2E2ED626A3F0574F3 /* NotchDetectorTests.swift */,
 				1A74A403B7529AB525D61186 /* NotchLayoutTests.swift */,
 				2EDC2A77A5776F22BB3F3565 /* TabManagerTests.swift */,
@@ -343,6 +346,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A745C455A5E5F6AA973C0980 /* CertTrustTests.swift in Sources */,
+				BF8E150B457D2C7C4CEB5805 /* FaviconServiceTests.swift in Sources */,
 				7F7D3A19A2D0E90B29EB6ACA /* NotchDetectorTests.swift in Sources */,
 				61632756C26C3356E9EA64DE /* NotchLayoutTests.swift in Sources */,
 				C3E97ADC00384DE0059144B4 /* TabManagerTests.swift in Sources */,

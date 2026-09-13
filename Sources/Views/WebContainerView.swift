@@ -11,6 +11,8 @@ struct WebContainerView: NSViewRepresentable {
     let webView: WKWebView
     let url: URL
     let isNewTabPage: Bool
+    /// 로드 완료 시 파비콘을 기록할 탭 (약참조로 Coordinator에 전달).
+    let tab: WebTab
 
     /// 새 탭 안내 HTML (패널 머티리얼이 비치도록 투명 배경).
     static let newTabHTML = """
@@ -34,7 +36,9 @@ struct WebContainerView: NSViewRepresentable {
         """
 
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        let coordinator = Coordinator()
+        coordinator.tab = tab
+        return coordinator
     }
 
     func makeNSView(context: Context) -> WKWebView {
@@ -59,13 +63,21 @@ struct WebContainerView: NSViewRepresentable {
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKDownloadDelegate {
+        weak var tab: WebTab?
+
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             webView.evaluateJavaScript(
                 "document.querySelector('link[rel*=\"icon\"]')?.href ?? ''"
-            ) { result, _ in
+            ) { [weak self] result, _ in
                 guard let href = result as? String, !href.isEmpty else { return }
-                Task {
-                    await FaviconService.shared.fetchIconHREF(href)
+                Task { [weak self] in
+                    guard let tab = self?.tab else { return }
+                    let pageHost = tab.host
+                    if let img = await FaviconService.shared.fetchIconHREF(href, pageHost: pageHost) {
+                        await MainActor.run {
+                            tab.cachedFavicon = img
+                        }
+                    }
                 }
             }
         }
