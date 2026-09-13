@@ -252,6 +252,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Settings / About / Quit
 
     @objc func openSettings() {
+        // 노치 확장 패널(.screenSaver 레벨)이 설정 창을 가리지 않도록 먼저 접기.
+        notchWindowController?.dismissPanel()
         if settingsWindow == nil {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 480, height: 420),
@@ -262,6 +264,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.title = NSLocalizedString("menu.settings", comment: "")
             // 닫기 후에도 강한 참조 유지 → over-release 댕글링 크래시 방지.
             window.isReleasedWhenClosed = false
+            // 일반 창보다 위에 뜨도록 floating 레벨.
+            window.level = .floating
             let hosting = NSHostingView(rootView: SettingsView())
             hosting.sizingOptions = []
             window.contentView = hosting

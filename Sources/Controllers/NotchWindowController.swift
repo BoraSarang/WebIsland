@@ -16,6 +16,7 @@ final class NotchWindowController {
     private var mouseMonitor: Any?
     private var lastMouseCheck = CFAbsoluteTime(0)
     private var collapseWorkItem: DispatchWorkItem?
+    private var keyDownMonitor: Any?
 
     @AppStorage("windowMode") var windowMode: WindowMode = .attached
 
@@ -49,22 +50,32 @@ final class NotchWindowController {
             self.windowMode = self.storedWindowMode()
             self.switchMode(to: self.windowMode)
         }
+        // ESC 키: 확장 패널 접기 / 분리 플로팅 닫기.
+        NotificationCenter.default.addObserver(
+            forName: .wiDismissPanel,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.dismissPanel()
+        }
         setupMouseTracking()
+        setupEscapeClose()
     }
 
     private func storedWindowMode() -> WindowMode {
         WindowMode(rawValue: UserDefaults.standard.string(forKey: "windowMode") ?? "") ?? .attached
     }
 
-    deinit {
+deinit {
         mouseMonitor.map(NSEvent.removeMonitor)
+        keyDownMonitor.map(NSEvent.removeMonitor)
         collapseWorkItem?.cancel()
     }
 
     // MARK: - 상태별 윈도우 프레임 (순수 함수 — 단위 테스트 대상)
 
     static let pillHeight: CGFloat = 40
-    static let panelHeight: CGFloat = 480
+    static let panelHeight: CGFloat = 844
 
     static func frame(
         for state: NotchViewModel.State,
@@ -163,12 +174,20 @@ final class NotchWindowController {
             detachedWindow?.orderFrontRegardless()
             return
         }
-        let savedFrame = UserDefaults.standard.string(forKey: "detachedFrame")
+        var savedFrame = UserDefaults.standard.string(forKey: "detachedFrame")
             .flatMap { NSRectFromString($0) }
-            ?? NSRect(x: 500, y: 500, width: 400, height: 500)
+            ?? NSRect(x: 500, y: 500, width: 400, height: 844)
+        // 옛 400×500 기준 저장값 대비 최소 크기 강제.
+        // 브라우저 뷰포트 390×844 + 여백에 맞춰 화면 밖으로는 안 나가게.
+        let screen = NSScreen.main?.visibleFrame ?? savedFrame
+        if savedFrame.width < 400 { savedFrame.size.width = 400 }
+        if savedFrame.height < 844 { savedFrame.size.height = 844 }
+        if savedFrame.maxY > screen.maxY { savedFrame.origin.y = screen.maxY - savedFrame.height }
+        if savedFrame.minY < screen.minY { savedFrame.origin.y = screen.minY }
+        let frame = savedFrame
 
         detachedWindow = PanelWindow(
-            contentRect: savedFrame,
+            contentRect: frame,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -180,10 +199,10 @@ final class NotchWindowController {
         detachedWindow?.isMovableByWindowBackground = true
         let detachedHosting = NSHostingView(rootView: DetachedBrowserView(tabManager: tabManager))
         detachedHosting.sizingOptions = []
-        detachedHosting.frame = NSRect(origin: .zero, size: savedFrame.size)
+        detachedHosting.frame = NSRect(origin: .zero, size: frame.size)
         detachedHosting.autoresizingMask = [.width, .height]
         detachedWindow?.contentView = detachedHosting
-        detachedWindow?.setFrame(savedFrame, display: false)
+        detachedWindow?.setFrame(frame, display: false)
         detachedWindow?.orderFrontRegardless()
 
         NotificationCenter.default.addObserver(
@@ -232,6 +251,23 @@ final class NotchWindowController {
         }
     }
 
+    /// ESC를 웹뷰(페이지 JS)보다 먼저 가로채 패널을 닫는다.
+    /// 메뉴바 클릭과 동일하게 앱 함수(dismissPanel)를 직접 호출하므로
+    /// SwiftUI .onExitCommand가 웹뷰 키에 삼켜지는 문제와 무관하게 동작한다.
+    private func setupEscapeClose() {
+        keyDownMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard event.keyCode == 53 else { return event }
+            // 주소 입력 등 텍스트 편집 중 ESC는 편집 취소로 통과.
+            if NSApp.keyWindow?.firstResponder is NSTextField { return event }
+            guard let self else { return event }
+            let isRelevant = self.viewModel.state == .expanded
+                || self.detachedWindow?.isVisible == true
+            guard isRelevant else { return event }
+            self.dismissPanel()
+            return nil
+        }
+    }
+
     func handleMouseMoved(_ event: NSEvent) {
         // 60fps 스로틀
         let now = CFAbsoluteTimeGetCurrent()
@@ -267,18 +303,35 @@ final class NotchWindowController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: item)
     }
 
-    /// 메뉴바 클릭·단축키: 패널 열고 닫기.
+    /// 메뉴바 아이콘·단축키: 패널 열고 닫기.
+    /// 분리 모드에서는 실제로 열려 있으면 닫는 토글 (ESC가 없어도 종료 수단 보장).
     func toggle() {
-        notchWindow.orderFrontRegardless()
         if windowMode == .detached {
+            if detachedWindow?.isVisible == true {
+                dismissPanel()
+                return
+            }
             setupDetachedWindow()
+            DebugLogger.feature("Panel", "플로팅 열기")
+            viewModel.state = .expanded
+            return
         }
+        notchWindow.orderFrontRegardless()
         if viewModel.state == .expanded {
             viewModel.state = .hovered
         } else {
             DebugLogger.feature("Panel", "패널 열기")
             viewModel.state = .expanded
         }
+    }
+
+    /// 확장 패널 접기 + 분리 플로팅 창 닫기. ESC·설정 열기 등에서 호출.
+    func dismissPanel() {
+        DebugLogger.feature("Panel", "패널 닫기 (mode=\(windowMode.rawValue))")
+        if windowMode == .detached {
+            detachedWindow?.orderOut(nil)
+        }
+        viewModel.state = .hovered
     }
 
     func show() {

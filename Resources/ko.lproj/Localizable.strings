@@ -41,3 +41,11 @@
 "onboarding.skip" = "나중에";
 "onboarding.start" = "시작하기";
 "onboarding.hint" = "권한 없이도 메뉴바·단축키로 패널을 열 수 있습니다.";
+"download.cancelled" = "취소됨";
+"download.cancel" = "취소";
+"download.failed" = "다운로드에 실패했습니다";
+"download.showInFinder" = "Finder에서 보기";
+"download.remaining" = "%@ 남음";
+"toolbar.close" = "패널 닫기 (ESC)";
+"settings.about.version" = "버전 %@ (빌드 %@)";
+"settings.about.github" = "GitHub";

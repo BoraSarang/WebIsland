@@ -37,6 +37,13 @@ final class WebTab: Identifiable {
         return ":\(port)"
     }
 
+    /// 파비콘 캐시 키 (포트별 격리). 동일 호스트의 다른 포트 탭이
+    /// 서로의 파비콘을 덮어쓰지 않도록 호스트:포트로 구분한다.
+    var faviconKey: String {
+        guard let badge = portBadge else { return host }
+        return host + badge
+    }
+
     /// 새 탭 안내 페이지 (스키마 변경 없는 transient 판별).
     var isNewTabPage: Bool { urlString == "about:blank" }
 }

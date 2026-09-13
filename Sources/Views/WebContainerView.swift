@@ -13,6 +13,8 @@ struct WebContainerView: NSViewRepresentable {
     let isNewTabPage: Bool
     /// 로드 완료 시 파비콘을 기록할 탭 (약참조로 Coordinator에 전달).
     let tab: WebTab
+    /// 리다이렉트/https 업그레이드 후 실제 주소를 탭에 동기화.
+    var onURLDidChange: (String) -> Void = { _ in }
 
     /// 새 탭 안내 HTML (패널 머티리얼이 비치도록 투명 배경).
     static let newTabHTML = """
@@ -38,6 +40,7 @@ struct WebContainerView: NSViewRepresentable {
     func makeCoordinator() -> Coordinator {
         let coordinator = Coordinator()
         coordinator.tab = tab
+        coordinator.onURLDidChange = onURLDidChange
         return coordinator
     }
 
@@ -64,6 +67,24 @@ struct WebContainerView: NSViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKDownloadDelegate {
         weak var tab: WebTab?
+        var onURLDidChange: (String) -> Void = { _ in }
+
+        func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+            syncURL(from: webView)
+        }
+
+        /// 화면에 커밋된 실제 주소(http/https 한정)를 탭에 반영.
+        /// 타이핑 입력(about:blank/오타)이나 팝업 등은 제외하고,
+        /// 동일값·중간 리다이렉트 단계는 시간순 최신으로 덮어쓴다.
+        private func syncURL(from webView: WKWebView) {
+            guard let tab, let current = webView.url else { return }
+            guard let scheme = current.scheme?.lowercased(),
+                  scheme == "http" || scheme == "https"
+            else { return }
+            let resolved = current.absoluteString
+            guard resolved != tab.urlString else { return }
+            onURLDidChange(resolved)
+        }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             webView.evaluateJavaScript(
@@ -72,8 +93,8 @@ struct WebContainerView: NSViewRepresentable {
                 guard let href = result as? String, !href.isEmpty else { return }
                 Task { [weak self] in
                     guard let tab = self?.tab else { return }
-                    let pageHost = tab.host
-                    if let img = await FaviconService.shared.fetchIconHREF(href, pageHost: pageHost) {
+                    let pageKey = tab.faviconKey
+                    if let img = await FaviconService.shared.fetchIconHREF(href, pageKey: pageKey) {
                         await MainActor.run {
                             tab.cachedFavicon = img
                         }
@@ -183,11 +204,15 @@ struct WebContainerView: NSViewRepresentable {
             navigationAction: WKNavigationAction,
             didBecome download: WKDownload
         ) {
+            let filename = navigationAction.request.url?.lastPathComponent
+                ?? navigationAction.request.url?.absoluteString
+                ?? "파일"
             DebugLogger.feature(
                 "Download",
-                "시작(action): \(navigationAction.request.url?.lastPathComponent ?? "파일")"
+                "시작(action): \(filename)"
             )
             download.delegate = self
+            DownloadManager.shared.register(download, filename: filename)
         }
 
         func webView(
@@ -207,11 +232,15 @@ struct WebContainerView: NSViewRepresentable {
             navigationResponse: WKNavigationResponse,
             didBecome download: WKDownload
         ) {
+            let filename = navigationResponse.response.suggestedFilename
+                ?? navigationResponse.response.url?.absoluteString
+                ?? "파일"
             DebugLogger.feature(
                 "Download",
-                "시작: \(navigationResponse.response.suggestedFilename ?? "파일")"
+                "시작(response): \(filename)"
             )
             download.delegate = self
+            DownloadManager.shared.register(download, filename: filename)
         }
 
         func download(
@@ -220,12 +249,21 @@ struct WebContainerView: NSViewRepresentable {
             suggestedFilename: String,
             completionHandler: @escaping (URL?) -> Void
         ) {
+            // 완료 전까지 임시 `.download` 파일로 저장하고, 완료 시 최종 이름으로 rename.
             let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]
-            completionHandler(downloads.appendingPathComponent(suggestedFilename))
+            let tempURL = DownloadManager.shared.uniqueDestination(
+                in: downloads,
+                suggested: "\(suggestedFilename).download"
+            )
+            DebugLogger.feature("Download", "임시 저장: \(tempURL.lastPathComponent)")
+            DownloadManager.shared.setDestination(tempURL, for: download)
+            completionHandler(tempURL)
         }
 
         func downloadDidFinish(_ download: WKDownload) {
             DebugLogger.info("다운로드 완료")
+            guard let id = DownloadManager.shared.itemID(for: download) else { return }
+            DownloadManager.shared.finish(id: id)
         }
 
         func download(
@@ -233,7 +271,15 @@ struct WebContainerView: NSViewRepresentable {
             didFailWithError error: Error,
             resumeData: Data?
         ) {
-            DebugLogger.error(code: "E-MAC-NET-0002", "다운로드 실패: \(error.localizedDescription)")
+            DebugLogger.feature(
+                "Download",
+                "didFail 도달: code=\((error as NSError).code) (\(error.localizedDescription))"
+            )
+            guard let id = DownloadManager.shared.itemID(for: download) else {
+                DebugLogger.error(code: "E-MAC-NET-0002", "다운로드 실패: \(error.localizedDescription)")
+                return
+            }
+            DownloadManager.shared.fail(id: id, error: error)
         }
     }
 }

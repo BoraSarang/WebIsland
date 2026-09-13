@@ -56,10 +56,27 @@ struct SettingsView: View {
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
+
+            Section {
+                VStack(spacing: 4) {
+                    Text(Self.appInfo().name)
+                        .font(.headline)
+                    Text(Self.versionLine())
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Link(
+                        NSLocalizedString("settings.about.github", comment: ""),
+                        destination: Self.repositoryURL
+                    )
+                    .font(.caption)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .multilineTextAlignment(.center)
+            }
         }
         .formStyle(.grouped)
         .padding(.horizontal, 8)
-        .frame(width: 480, height: 420)
+        .frame(width: 480, height: 460)
     }
 
     private var windowModeDesc: String {
@@ -67,5 +84,30 @@ struct SettingsView: View {
             ? "settings.windowMode.attached.desc"
             : "settings.windowMode.detached.desc"
         return NSLocalizedString(key, comment: "")
+    }
+
+    // MARK: - 앱 정보 푸터 (순수 함수, 단위 테스트 대상)
+
+    static let repositoryURL = URL(string: "https://github.com/BoraSarang/WebIsland")!
+
+    /// 번들 Info.plist에서 읽음 (하드코딩 없음). 키 누락 시 폴백.
+    static func appInfo(bundle: Bundle = .main) -> (name: String, version: String, build: String) {
+        appInfo(from: bundle.infoDictionary ?? [:])
+    }
+
+    static func appInfo(from info: [String: Any]) -> (name: String, version: String, build: String) {
+        let name = (info["CFBundleName"] as? String) ?? "Web Island"
+        let version = (info["CFBundleShortVersionString"] as? String) ?? "—"
+        let build = (info["CFBundleVersion"] as? String) ?? "—"
+        return (name, version, build)
+    }
+
+    static func versionLine(bundle: Bundle = .main) -> String {
+        let info = appInfo(bundle: bundle)
+        return String(
+            format: NSLocalizedString("settings.about.version", comment: ""),
+            info.version,
+            info.build
+        )
     }
 }

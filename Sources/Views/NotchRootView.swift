@@ -20,6 +20,14 @@ struct NotchRootView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
+        // 단일 실루엣: 노치에서 자라난 하나의 덩어리 (단일 배경·클립·그림자).
+        // 개별 pill/패널의 둥근 이음매·따로 노는 그림자가 "밑에 올려둔 창"처럼 보이던 원인.
+        .background(Color.black)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .shadow(color: .black.opacity(0.35), radius: 20, y: 8)
+        // 검정 융합 위 크롬(툴바·트레이)은 항상 다크 취급 (라이트 모드 검정 위 검정 방지).
+        // WKWebView 렌더링에는 영향 없음 (SwiftUI 환경값만).
+        .preferredColorScheme(.dark)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: state)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: tabManager.activeTabID)
         .onHover { hovering in
@@ -29,6 +37,9 @@ struct NotchRootView: View {
             DispatchQueue.main.async {
                 viewModel.state = hovering ? .hovered : .idle
             }
+        }
+        .onExitCommand {
+            NotificationCenter.default.post(name: .wiDismissPanel, object: nil)
         }
     }
 
@@ -66,20 +77,16 @@ struct NotchRootView: View {
             width: state == .idle ? viewModel.idleWidth : viewModel.expandedWidth,
             height: 40
         )
+        // 외곽 모양·그림자는 바깥 단일 컨테이너가 담당 (이음매 무단차).
+        // pill은 위만 둥글게(컨테이너 클립에 맡김) 아래는 패널과 직선으로 만남.
         .background(Color.black)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(
-            color: .black.opacity(state == .expanded ? 0 : 0.2),
-            radius: 8,
-            y: 4
-        )
         .onTapGesture {
             DebugLogger.feature("NotchRoot", "노치 탭: \(state) → 토글")
             viewModel.state = (state == .expanded) ? .hovered : .expanded
         }
     }
 
-    // MARK: - Browser Panel (400×480, gap 0)
+    // MARK: - Browser Panel (창 가득 × 844, 블랙 융합)
 
     func browserPanel(for tab: WebTab) -> some View {
         let webView = tabManager.webView(for: tab)
@@ -93,16 +100,24 @@ struct NotchRootView: View {
                 onAddTab: { tabManager.addTab() },
                 onOpenSettings: {
                     (NSApp.delegate as? AppDelegate)?.openSettings()
+                },
+                onDismiss: {
+                    (NSApp.delegate as? AppDelegate)?.notchWindowController?.dismissPanel()
                 }
             )
-            WebContainerView(webView: webView, url: tab.url, isNewTabPage: tab.isNewTabPage, tab: tab)
+            DownloadTrayView()
+            WebContainerView(
+                webView: webView,
+                url: tab.url,
+                isNewTabPage: tab.isNewTabPage,
+                tab: tab,
+                onURLDidChange: { tabManager.syncURL(tab, $0) }
+            )
                 .id(tab.id)
-                .frame(width: 390)
+                .frame(width: viewModel.expandedWidth - 10)
         }
-        .frame(width: 400, height: 480)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: .black.opacity(0.18), radius: 20, y: 8)
+        .frame(width: viewModel.expandedWidth, height: 844)
+        .background(Color.black)
     }
 }
 
@@ -217,6 +232,8 @@ struct FaviconView: View {
                 Text(badge)
                     .font(.system(size: 7, weight: .bold))
                     .foregroundColor(.white)
+                    .lineLimit(1)
+                    .fixedSize()
                     .padding(.horizontal, 3)
                     .padding(.vertical, 1)
                     .background(Color.black.opacity(0.65))
@@ -225,19 +242,22 @@ struct FaviconView: View {
             }
         }
         .task(id: tab.urlString) {
+            DebugLogger.feature("FaviconView", "task: \(tab.host)")
             if let img = await FaviconService.shared.fetchFavicon(for: tab.url) {
                 icon = img
                 tab.cachedFavicon = img
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .wiFaviconDidUpdate)) { note in
-            guard tab.cachedFavicon == nil,
-                  (note.userInfo?["host"] as? String) == tab.host
-            else { return }
+            guard (note.userInfo?["key"] as? String) == tab.faviconKey else { return }
+            // 로컬 서버는 기존 아이콘이 있어도 바뀐 파비콘을 다시 받아 반영.
+            let isLocal = CertTrustService.isPrivateIP(tab.host)
+            guard isLocal || tab.cachedFavicon == nil else { return }
             Task { @MainActor in
                 if let img = await FaviconService.shared.fetchFavicon(for: tab.url) {
                     icon = img
                     tab.cachedFavicon = img
+                    DebugLogger.feature("FaviconView", "notify 재fetch 적용: \(tab.host)")
                 }
             }
         }
@@ -253,10 +273,23 @@ struct ToolbarView: View {
     var onNavigate: (String) -> Void
     var onAddTab: () -> Void
     var onOpenSettings: () -> Void
+    var onDismiss: () -> Void
 
     @State private var editing = false
     @State private var draft = ""
+    @State private var pageTitle = ""
     @FocusState private var addressFocused: Bool
+
+    /// 호스트 + 비기본 포트 표시 (기본 80/443은 생략).
+    private var displayHostPort: String {
+        guard let host = url.host else { return url.absoluteString }
+        guard let port = url.port else { return host }
+        let scheme = url.scheme?.lowercased()
+        if (scheme == "https" && port == 443) || (scheme == "http" && port == 80) {
+            return host
+        }
+        return "\(host):\(port)"
+    }
 
     var body: some View {
         HStack(spacing: 4) {
@@ -302,9 +335,12 @@ struct ToolbarView: View {
                     editing = true
                 } label: {
                     HStack(spacing: 4) {
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 10))
-                        Text(url.host ?? url.absoluteString)
+                        if url.scheme?.lowercased() == "https" {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 10))
+                        }
+                        // 무슨 사이트인지 한눈에 알도록 제목 우선, 없으면 호스트.
+                        Text(pageTitle.isEmpty ? displayHostPort : pageTitle)
                             .font(.system(size: 12))
                             .lineLimit(1)
                     }
@@ -321,9 +357,21 @@ struct ToolbarView: View {
             }
             .menuStyle(.borderlessButton)
             .frame(width: 28)
+            Button {
+                onDismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .bold))
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(.secondary)
+            .help(NSLocalizedString("toolbar.close", comment: ""))
         }
         .padding(8)
         .frame(height: 36)
+        .onReceive(webView.publisher(for: \.title)) { title in
+            pageTitle = title ?? ""
+        }
         .onAppear {
             // 새 탭은 주소 입력부터 시작.
             if isNewTabPage {
@@ -354,14 +402,27 @@ struct DetachedBrowserView: View {
                     onAddTab: { tabManager.addTab() },
                     onOpenSettings: {
                         (NSApp.delegate as? AppDelegate)?.openSettings()
+                    },
+                    onDismiss: {
+                        (NSApp.delegate as? AppDelegate)?.notchWindowController?.dismissPanel()
                     }
                 )
-                WebContainerView(webView: webView, url: tab.url, isNewTabPage: tab.isNewTabPage, tab: tab)
+                DownloadTrayView()
+                WebContainerView(
+                    webView: webView,
+                    url: tab.url,
+                    isNewTabPage: tab.isNewTabPage,
+                    tab: tab,
+                    onURLDidChange: { tabManager.syncURL(tab, $0) }
+                )
                     .id(tab.id)
             }
         }
-        .frame(width: 400, height: 500)
+        .frame(width: 400, height: 844)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .onExitCommand {
+            NotificationCenter.default.post(name: .wiDismissPanel, object: nil)
+        }
     }
 }

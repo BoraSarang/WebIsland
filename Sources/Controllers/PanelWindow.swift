@@ -21,4 +21,10 @@ final class PanelWindow: NSPanel {
         // 비활성화 시 패널이 사라지지 않도록 (오버레이 상주).
         hidesOnDeactivate = false
     }
+
+    /// ESC 기본 경로 보조: 주소창이 아닌 곳에서 ESC를 누르면 무조건 패널 닫기.
+    /// 웹뷰가 포커스면 호출되지 않으므로 주수단은 localMonitor(keyDown모니터).
+    override func cancelOperation(_ sender: Any?) {
+        NotificationCenter.default.post(name: .wiDismissPanel, object: nil)
+    }
 }

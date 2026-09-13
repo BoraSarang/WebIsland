@@ -85,4 +85,18 @@ final class FaviconServiceTests: XCTestCase {
         let tab = WebTab(url: URL(string: "https://example.com")!, order: 0)
         XCTAssertNil(tab.cachedFavicon)
     }
+
+    func testLocalHostDetection() {
+        // 캐시 우회 대상: 로컬호스트 + 사설IP 대역.
+        XCTAssertTrue(CertTrustService.isPrivateIP("localhost"))
+        XCTAssertTrue(CertTrustService.isPrivateIP("127.0.0.1"))
+        XCTAssertTrue(CertTrustService.isPrivateIP("10.36.188.13"))
+        XCTAssertTrue(CertTrustService.isPrivateIP("172.16.0.1"))
+        XCTAssertTrue(CertTrustService.isPrivateIP("172.31.255.255"))
+        XCTAssertTrue(CertTrustService.isPrivateIP("192.168.1.100"))
+        // 공용 IP는 캐시 대상 (7일 TTL 유지).
+        XCTAssertFalse(CertTrustService.isPrivateIP("github.com"))
+        XCTAssertFalse(CertTrustService.isPrivateIP("8.8.8.8"))
+        XCTAssertFalse(CertTrustService.isPrivateIP("172.32.0.1"))
+    }
 }

@@ -41,3 +41,11 @@
 "onboarding.skip" = "Later";
 "onboarding.start" = "Get Started";
 "onboarding.hint" = "You can still open the panel from the menu bar or keyboard shortcut without permission.";
+"download.cancelled" = "Cancelled";
+"download.cancel" = "Cancel";
+"download.failed" = "Download failed";
+"download.showInFinder" = "Show in Finder";
+"download.remaining" = "%@ left";
+"toolbar.close" = "Close Panel (Esc)";
+"settings.about.version" = "Version %@ (Build %@)";
+"settings.about.github" = "GitHub";

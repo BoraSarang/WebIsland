@@ -155,6 +155,14 @@ final class TabManager: ObservableObject {
         save()
     }
 
+    /// 리다이렉트·https 업그레이드 후 WebView가 커밋한 실측 URL을 탭에 반영.
+    func syncURL(_ tab: WebTab, _ urlString: String) {
+        guard tab.urlString != urlString else { return }
+        DebugLogger.info("URL 실측 동기화: \(urlString)")
+        tab.urlString = urlString
+        save()
+    }
+
     private func validatedURL(_ raw: String) -> URL? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         if let url = URL(string: trimmed), Self.isLoadable(url) {

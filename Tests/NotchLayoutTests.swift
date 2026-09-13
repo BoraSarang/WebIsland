@@ -37,7 +37,7 @@ final class NotchLayoutTests: XCTestCase {
     func testExpandedAttachedFrame() {
         let rect = frame(for: .expanded)
         XCTAssertEqual(rect.width, 440)
-        XCTAssertEqual(rect.height, 520)
+        XCTAssertEqual(rect.height, NotchWindowController.pillHeight + NotchWindowController.panelHeight)
         XCTAssertEqual(rect.midX, midX, accuracy: 0.001)
         XCTAssertEqual(rect.maxY, topY, accuracy: 0.001)
     }
