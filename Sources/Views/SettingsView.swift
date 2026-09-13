@@ -96,14 +96,18 @@ struct SettingsView: View {
 
     static let repositoryURL = URL(string: "https://github.com/BoraSarang/WebIsland")!
 
-    /// 번들 Info.plist에서 읽음 (하드코딩 없음). 키 누락 시 폴백.
+    /// 버전·빌드는 번들 Info.plist에서 읽음 (키 누락 시 폴백).
     static func appInfo(bundle: Bundle = .main) -> AppInfo {
         appInfo(from: bundle.infoDictionary ?? [:])
     }
 
+    /// 푸터 표시용 고정 이름. 번들의 CFBundleName은 Finder 정합용
+    /// "WebIsland"이므로 표시 이름은 분리한다.
+    static let displayName = "Web Island"
+
     static func appInfo(from info: [String: Any]) -> AppInfo {
         AppInfo(
-            name: (info["CFBundleName"] as? String) ?? "Web Island",
+            name: displayName,
             version: (info["CFBundleShortVersionString"] as? String) ?? "—",
             build: (info["CFBundleVersion"] as? String) ?? "—"
         )

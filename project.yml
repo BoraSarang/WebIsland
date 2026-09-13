@@ -17,8 +17,9 @@ targets:
     info:
       path: Info.plist
       properties:
-        CFBundleName: Web Island
-        CFBundleDisplayName: Web Island
+        CFBundleName: WebIsland
+        CFBundleDisplayName: WebIsland
+        LSHasLocalizedDisplayName: true
         CFBundleIdentifier: com.borasarang.WebIsland
         CFBundleShortVersionString: 0.1.0
         CFBundleVersion: 0.1.0

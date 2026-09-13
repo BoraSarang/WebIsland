@@ -31,6 +31,11 @@
   다운로드 폴링 `Timer` → `Task.sleep` 루프 (`tick` 유지).
   WebTab 미사용 3종은 SwiftData 스키마 위험으로 유지.
   unit 63건 통과, lint error 0 + 경고 0. perf/cache 영향 없음.
+- [macos] 디스플레이 네임 현지화 (T-016/PLAN_v0.9, 가이드 `macos-localization.md`):
+  원인 2건 해소 (`LSHasLocalizedDisplayName` 추가 + 번들명 `WebIsland` 정합),
+  strings 무변경 (en `Web Island`·ko `웹 아일랜드`).
+  설정 푸터 이름 표시 분리 (`AppInfo.displayName`).
+  `mdls` = `웹 아일랜드` 확인. unit 63건 통과, lint 0. perf/cache 영향 없음.
 
 - [macos] Final 아이콘 교체 (T-012):
   3D 공식 아이콘 → 플랫 야자섬 Final(Light: 흰 불투명 배경 + 검정섬).

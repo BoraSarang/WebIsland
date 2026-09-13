@@ -19,6 +19,7 @@
 | T-013 | — | 전체 리팩토링 P0+P1+E2E | 완료 (Phase 0~3, unit 58건·E2E 4/4·lint error 0) |
 | T-014 | — | 잔여 type_body 경고 2건 해소 (DownloadItem 모델·FileStore·WindowFactory 분리) | 완료 (lint 경고 0·unit 63건·E2E 4/4) |
 | T-015 | — | P2 잔여 (moveTab·elapsed 삭제·설정키 상수화·폴링 Task 전환) | 완료 (lint 0·unit 63건·E2E 4/4) |
+| T-016 | — | 디스플레이 네임 현지화 (번들명 정합·LSHasLocalizedDisplayName·푸터 분리) | 완료 (mdls 웹 아일랜드·lint 0·unit 63건·E2E 4/4) |
 
 ## 다음 행동 (다음 세션 우선순위)
 
