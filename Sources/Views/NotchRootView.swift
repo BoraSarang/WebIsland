@@ -111,7 +111,8 @@ struct NotchRootView: View {
                 url: tab.url,
                 isNewTabPage: tab.isNewTabPage,
                 tab: tab,
-                onURLDidChange: { tabManager.syncURL(tab, $0) }
+                onURLDidChange: { tabManager.syncURL(tab, $0) },
+                onOpenNewWindow: { tabManager.addTab(urlString: $0) }
             )
                 .id(tab.id)
                 .frame(width: viewModel.expandedWidth - 10)
@@ -413,7 +414,8 @@ struct DetachedBrowserView: View {
                     url: tab.url,
                     isNewTabPage: tab.isNewTabPage,
                     tab: tab,
-                    onURLDidChange: { tabManager.syncURL(tab, $0) }
+                    onURLDidChange: { tabManager.syncURL(tab, $0) },
+                    onOpenNewWindow: { tabManager.addTab(urlString: $0) }
                 )
                     .id(tab.id)
             }

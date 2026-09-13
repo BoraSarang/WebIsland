@@ -15,6 +15,18 @@ struct WebContainerView: NSViewRepresentable {
     let tab: WebTab
     /// 리다이렉트/https 업그레이드 후 실제 주소를 탭에 동기화.
     var onURLDidChange: (String) -> Void = { _ in }
+    /// target=_blank·window.open 요청을 새 탭으로 (nil이면 주소 없는 팝업이라 무시).
+    var onOpenNewWindow: (String) -> Void = { _ in }
+
+    /// 새창 요청에서 새 탭으로 열 주소만 추림 (순수 함수, 단위 테스트 대상).
+    /// http(s)만, 그 외(blob·about:blank 등 JS 팝업 포함)는 nil.
+    static func newWindowURLString(from request: URLRequest?) -> String? {
+        guard let url = request?.url,
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https"
+        else { return nil }
+        return url.absoluteString
+    }
 
     /// 새 탭 안내 HTML (패널 머티리얼이 비치도록 투명 배경).
     static let newTabHTML = """
@@ -41,11 +53,14 @@ struct WebContainerView: NSViewRepresentable {
         let coordinator = Coordinator()
         coordinator.tab = tab
         coordinator.onURLDidChange = onURLDidChange
+        coordinator.onOpenNewWindow = onOpenNewWindow
         return coordinator
     }
 
     func makeNSView(context: Context) -> WKWebView {
         webView.navigationDelegate = context.coordinator
+        // UIDelegate 미설정 시 target=_blank·window.open이 조용히 버려진다.
+        webView.uiDelegate = context.coordinator
         loadIfNeeded(webView)
         return webView
     }
@@ -65,9 +80,10 @@ struct WebContainerView: NSViewRepresentable {
         }
     }
 
-    final class Coordinator: NSObject, WKNavigationDelegate, WKDownloadDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
         weak var tab: WebTab?
         var onURLDidChange: (String) -> Void = { _ in }
+        var onOpenNewWindow: (String) -> Void = { _ in }
 
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
             syncURL(from: webView)
@@ -175,6 +191,30 @@ struct WebContainerView: NSViewRepresentable {
                 DebugLogger.info("인증서 신뢰 거부됨: \(host)")
                 completionHandler(.cancelAuthenticationChallenge, nil)
             }
+        }
+
+        // MARK: - 새창 (target=_blank·window.open → 새 탭)
+
+        /// 별도 팝업 웹뷰 대신 새 탭으로 연다. nil 반환이라 중복 로드 없음.
+        func webView(
+            _ webView: WKWebView,
+            createWebViewWith configuration: WKWebViewConfiguration,
+            for navigationAction: WKNavigationAction,
+            windowFeatures: WKWindowFeatures
+        ) -> WKWebView? {
+            guard let urlString = WebContainerView.newWindowURLString(from: navigationAction.request) else {
+                let logged = navigationAction.request.url?.absoluteString.prefix(80) ?? "nil"
+                DebugLogger.info("새창 무시 (주소 없는 팝업): \(logged)")
+                return nil
+            }
+            DebugLogger.feature("NewWindow", "새 탭으로 열기: \(urlString.prefix(120))")
+            onOpenNewWindow(urlString)
+            return nil
+        }
+
+        /// JS window.close()는 로그만 (메인 탭 오닫기 방지, 팝업 추적은 후속).
+        func webViewDidClose(_ webView: WKWebView) {
+            DebugLogger.info("window.close() 수신, 무시")
         }
 
         // MARK: - 다운로드 (표시 불가 MIME → ~/Downloads 저장)
