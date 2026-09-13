@@ -125,7 +125,10 @@ deinit {
     }
 
     func setupNotchWindow() {
-        let screen = NSScreen.main!
+        guard let screen = NSScreen.main else {
+            DebugLogger.error(code: "E-MAC-UI-0001", "노치 윈도우 생성 실패: 화면 없음")
+            return
+        }
         if let notch = screen.notchRect {
             viewModel.notchWidth = notch.width
         }

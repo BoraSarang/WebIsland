@@ -81,7 +81,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             EditEntry(title: "Cut", action: #selector(NSText.cut(_:)), key: "x", modifiers: .command),
             EditEntry(title: "Copy", action: #selector(NSText.copy(_:)), key: "c", modifiers: .command),
             EditEntry(title: "Paste", action: #selector(NSText.paste(_:)), key: "v", modifiers: .command),
-            EditEntry(title: "Select All", action: #selector(NSText.selectAll(_:)), key: "a", modifiers: .command),
+            EditEntry(title: "Select All", action: #selector(NSText.selectAll(_:)), key: "a", modifiers: .command)
         ]
         for (index, entry) in editActions.enumerated() {
             if index == 2 {

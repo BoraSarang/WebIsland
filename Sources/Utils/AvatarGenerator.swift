@@ -23,7 +23,7 @@ enum AvatarGenerator {
         NSGraphicsContext.restoreGraphicsState()
         let attrs: [NSAttributedString.Key: Any] = [
             .foregroundColor: NSColor.white,
-            .font: NSFont.boldSystemFont(ofSize: 28),
+            .font: NSFont.boldSystemFont(ofSize: 28)
         ]
         let strSize = letter.size(withAttributes: attrs)
         letter.draw(
@@ -40,7 +40,7 @@ enum AvatarGenerator {
             [.systemBlue, .systemPurple],
             [.systemPink, .systemOrange],
             [.systemGreen, .systemTeal],
-            [.systemIndigo, .systemBlue],
+            [.systemIndigo, .systemBlue]
         ]
         return palettes[hash % palettes.count]
     }

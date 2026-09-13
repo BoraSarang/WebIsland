@@ -40,8 +40,9 @@
    - `navigationAction/navigationResponse didBecome download` 2곳에서
      `DownloadManager.shared.register`.
    - `decideDestinationUsing`에서 `uniqueDestination` 호출 후 경로 반환.
-   - `downloadDidFinish` → `finish`, `didFailWithError` → `NSURLErrorCancelled`
-     이면 cancelled, 아니면 failed(`E-MAC-NET-0003`).
+    - `downloadDidFinish` → `finish`, `didFailWithError` → `NSURLErrorCancelled`
+      이면 cancelled, 아니면 failed(`E-MAC-NET-0002`).
+      (정정 2026-09-14: `E-MAC-NET-0003`안은 폐기, `NET-0002`로 통합. PLAN_v0.4 §4와 정합.)
 4. **적용** (`Views/NotchRootView.swift`)
    - `browserPanel(for:)` VStack: `WebProgressBar` 아래
      `DownloadTrayView` 삽입 (조건부 내부 자체 처리).
@@ -49,7 +50,8 @@
 
 ## 4. 에러코드
 
-- `E-MAC-NET-0003`: 다운로드 실패 (기존 0002와 병행, userInfo에 파일명).
+- `E-MAC-NET-0002`: 다운로드 실패 (취소·실패·완료 매칭 실패·임시경로 유실 통합).
+  (`NET-0003`안은 폐기 — 별도 코드 없이 userInfo相当은 로그로.)
 
 ## 5. 순서 (게이트 고정)
 

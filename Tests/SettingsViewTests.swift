@@ -6,7 +6,7 @@ final class SettingsViewTests: XCTestCase {
         let info = SettingsView.appInfo(from: [
             "CFBundleName": "Web Island",
             "CFBundleShortVersionString": "0.1.0",
-            "CFBundleVersion": "42",
+            "CFBundleVersion": "42"
         ])
         XCTAssertEqual(info.name, "Web Island")
         XCTAssertEqual(info.version, "0.1.0")

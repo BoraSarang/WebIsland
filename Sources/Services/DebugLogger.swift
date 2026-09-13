@@ -12,8 +12,9 @@ enum DebugLogger {
 
     private static let logFileLock = NSLock()
     private static let logFileURL: URL = {
-        let dir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("WebIsland", isDirectory: true)
+        let base = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        let dir = base.appendingPathComponent("WebIsland", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir.appendingPathComponent("debug.log")
     }()
@@ -61,10 +62,13 @@ enum DebugLogger {
     static func perf(_ message: String) {
         log.info("[PERF] \(message, privacy: .public)")
         appendFile("[PERF] \(message)")
+        LogStore.shared.append(level: "PERF", message: message)
     }
 
     static func cache(hit: Bool, _ message: String) {
         log.info("[CACHE] \(hit ? "HIT" : "MISS", privacy: .public) \(message, privacy: .public)")
         appendFile("[CACHE] \(hit ? "HIT" : "MISS") \(message)")
+        LogStore.shared.recordCache(hit: hit)
+        LogStore.shared.append(level: hit ? "CACHE HIT" : "CACHE MISS", message: message)
     }
 }

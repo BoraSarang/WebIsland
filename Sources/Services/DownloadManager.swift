@@ -111,6 +111,7 @@ final class DownloadManager: ObservableObject {
         guard let tempURL = destinationsByID[id] else {
             items[index].state = .failed
             items[index].errorText = NSLocalizedString("download.failed", comment: "")
+            DebugLogger.error(code: "E-MAC-NET-0002", "임시경로 유실: \(filename)")
             cleanup(id: id)
             scheduleAutoRemove(id: id)
             return
@@ -290,10 +291,10 @@ final class DownloadManager: ObservableObject {
 
                 // 속도: 0.5s 폴링 간격 차분을 EMA로 스무딩.
                 if let last = lastSampleByID[id] {
-                    let dt = now - last.time
+                    let interval = now - last.time
                     let delta = sample.completed - last.bytes
-                    if dt > 0, delta > 0 {
-                        let instant = Double(delta) / dt
+                    if interval > 0, delta > 0 {
+                        let instant = Double(delta) / interval
                         let prev = items[index].speedBytesPerSecond
                         items[index].speedBytesPerSecond = prev > 0 ? prev * 0.7 + instant * 0.3 : instant
                     }
@@ -325,12 +326,12 @@ final class DownloadManager: ObservableObject {
 
     /// 주어진 디렉토리에 중복 파일명이 있으면 `이름 (n).확장자`로 회피.
     func uniqueDestination(in directory: URL, suggested: String) -> URL {
-        let fm = FileManager.default
+        let fileManager = FileManager.default
         let base = (suggested as NSString).deletingPathExtension
         let ext = (suggested as NSString).pathExtension
         var candidate = directory.appendingPathComponent(suggested)
         var suffix = 2
-        while fm.fileExists(atPath: candidate.path) {
+        while fileManager.fileExists(atPath: candidate.path) {
             let name = ext.isEmpty
                 ? "\(base) (\(suffix))"
                 : "\(base) (\(suffix)).\(ext)"

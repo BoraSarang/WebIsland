@@ -23,7 +23,9 @@ final class WebTab: Identifiable {
         self.createdAt = Date()
     }
 
-    var url: URL { URL(string: urlString)! }
+    var url: URL { URL(string: urlString) ?? Self.fallbackURL }
+    /// 손상된 영속값 방어용 (loadTabs에서 선제 제거, 여기는 최후 보루).
+    static let fallbackURL = URL(string: "about:blank")!
     var host: String { url.host ?? urlString }
     var firstLetter: String { String(host.prefix(1)).uppercased() }
 

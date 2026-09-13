@@ -290,9 +290,10 @@ struct WebContainerView: NSViewRepresentable {
             completionHandler: @escaping (URL?) -> Void
         ) {
             // 완료 전까지 임시 `.download` 파일로 저장하고, 완료 시 최종 이름으로 rename.
-            let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]
+            let base = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+                ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
             let tempURL = DownloadManager.shared.uniqueDestination(
-                in: downloads,
+                in: base,
                 suggested: "\(suggestedFilename).download"
             )
             DebugLogger.feature("Download", "임시 저장: \(tempURL.lastPathComponent)")
@@ -301,8 +302,10 @@ struct WebContainerView: NSViewRepresentable {
         }
 
         func downloadDidFinish(_ download: WKDownload) {
-            DebugLogger.info("다운로드 완료")
-            guard let id = DownloadManager.shared.itemID(for: download) else { return }
+            guard let id = DownloadManager.shared.itemID(for: download) else {
+                DebugLogger.error(code: "E-MAC-NET-0002", "완료 매칭 실패: 트레이 고아 항목 가능")
+                return
+            }
             DownloadManager.shared.finish(id: id)
         }
 

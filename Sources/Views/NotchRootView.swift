@@ -14,8 +14,7 @@ struct NotchRootView: View {
         VStack(spacing: 0) {
             notchPill
             if state == .expanded && viewModel.windowMode == .attached,
-               let tab = tabManager.activeTab
-            {
+               let tab = tabManager.activeTab {
                 browserPanel(for: tab)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }

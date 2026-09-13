@@ -2,6 +2,13 @@
 
 ## [Unreleased] — macos
 
+- [macos] P0 안정화 (리팩토링 Phase 0):
+  캐시 패널 단절 수정 (`DebugLogger.cache/perf` → `LogStore` 배선, 히트율 거짓 0% 복구).
+  크래시 2곳 방어 (`WebTab.url` 폴백 + 손상 탭 제거, `NSScreen.main` guard).
+  무음 실패 2곳에 `E-MAC-NET-0002` 추가. `E-MAC-PERM-0001` 폐기
+  (마우스 감지는 AX 권한 불필요), PLAN_v0.3 `NET-0003` 정정.
+  lint 경고 20→11건. unit 44건 통과, lint error 0. perf/cache 영향 없음.
+
 - [macos] Final 아이콘 교체 (T-012):
   3D 공식 아이콘 → 플랫 야자섬 Final(Light: 흰 불투명 배경 + 검정섬).
   `AppIcon.appiconset` 10종(zip 6종 + 1024에서 32·64·256·512 생성),

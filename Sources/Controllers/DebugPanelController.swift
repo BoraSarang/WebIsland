@@ -54,6 +54,7 @@ struct DebugPanelView: View {
 
     var body: some View {
         // revision 구독용 (entries는 스냅샷 반환).
+        // swiftlint:disable:next redundant_discardable_let — ViewBuilder에서 선언문 필요
         let _ = store.revision
         VStack(spacing: 8) {
             HStack {
@@ -101,6 +102,7 @@ struct DebugPanelView: View {
         case "FEATURE": return .blue
         case "PERF": return .purple
         case "CACHE HIT": return .green
+        case "CACHE MISS": return .orange
         default: return .secondary
         }
     }

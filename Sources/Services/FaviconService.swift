@@ -26,8 +26,9 @@ actor FaviconService {
     )
 
     private var diskDir: URL {
-        let dir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("WebIsland/\(Self.diskCacheVersion)", isDirectory: true)
+        let base = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        let dir = base.appendingPathComponent("WebIsland/\(Self.diskCacheVersion)", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
@@ -83,9 +84,9 @@ actor FaviconService {
             return existing
         }
         // 4) Google faviconV2 직접 호출 (구 S2는 리다이렉트 폴백이라 품질 불안정)
-        let v2 = "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON"
+        let faviconV2URL = "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON"
             + "&fallback_opts=TYPE,SIZE,URL&url=https://\(key)&size=64"
-        if let icon = await download(from: URL(string: v2)) {
+        if let icon = await download(from: URL(string: faviconV2URL)) {
             store(icon, for: key)
             return icon
         }

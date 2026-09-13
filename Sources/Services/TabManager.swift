@@ -43,7 +43,14 @@ final class TabManager: ObservableObject {
         do {
             var descriptor = FetchDescriptor<WebTab>(sortBy: [SortDescriptor(\.order)])
             descriptor.fetchLimit = 50
-            tabs = try context.fetch(descriptor)
+            let fetched = try context.fetch(descriptor)
+            // 손상된 URL 영속값은 로드 시점에 제거 (WebTab.url 강제언랩 크래시 방지).
+            let corrupt = fetched.filter { URL(string: $0.urlString) == nil }
+            for tab in corrupt {
+                DebugLogger.error(code: "E-MAC-DB-0001", "손상 탭 제거: \(tab.urlString.prefix(80))")
+                context.delete(tab)
+            }
+            tabs = fetched.filter { URL(string: $0.urlString) != nil }
         } catch {
             DebugLogger.error(code: "E-MAC-DB-0001", "탭 불러오기 실패")
             tabs = []
@@ -124,7 +131,8 @@ final class TabManager: ObservableObject {
     }
 
     func selectTab(_ tab: WebTab) {
-        DebugLogger.feature("TabManager.selectTab", "\(tab.urlString) (이전: \(activeTabID?.uuidString.prefix(8) ?? "없음"))")
+        let previous = activeTabID?.uuidString.prefix(8) ?? "없음"
+        DebugLogger.feature("TabManager.selectTab", "\(tab.urlString) (이전: \(previous))")
         activeTabID = tab.id
     }
 
